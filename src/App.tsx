@@ -1,12 +1,8 @@
-import React from 'react';
+import React from "react";
+import SmartickApp from "./smartick/components/SmartickApp";
 
 const App: React.FC = () => {
-  return (
-    <div className="app">
-      <h1>MateSmart</h1>
-      <p>Matemáticas adaptativas para Ana</p>
-    </div>
-  );
+  return <SmartickApp />;
 };
 
 export default App;
