@@ -51,9 +51,9 @@ export function selectNextProblem(
     eligibleSkills = Object.values(skillMap).filter(
       (s) => s.masteryPercentage > 50,
     );
-    // Fallback to highest mastery or first skill
+    // Fallback: all skills (rotating) so Ana sees variety from the start
     if (eligibleSkills.length === 0) {
-      eligibleSkills = getTopMasterySkills(skillMap, 1);
+      eligibleSkills = Object.values(skillMap);
     }
   } else if (phase === PHASES.COOL_DOWN) {
     // Cool-down: any mastered content at easiest difficulty
@@ -61,7 +61,7 @@ export function selectNextProblem(
       (s) => s.skillMastered || s.masteryPercentage > 50,
     );
     if (eligibleSkills.length === 0) {
-      eligibleSkills = getTopMasterySkills(skillMap, 1);
+      eligibleSkills = Object.values(skillMap);
     }
   } else {
     // Core phase: unlocked skills only
@@ -91,9 +91,9 @@ export function selectNextProblem(
     const alternatives = eligibleSkills.filter(
       (s) => s.id !== currentSkillId,
     );
-    selectedSkill = pickLowestMasterySkill(alternatives, mastery);
+    selectedSkill = pickLowestMasterySkill(alternatives, mastery, session);
   } else {
-    selectedSkill = pickLowestMasterySkill(eligibleSkills, mastery);
+    selectedSkill = pickLowestMasterySkill(eligibleSkills, mastery, session);
   }
 
   // --- Step 3: Select sub-skill ---
@@ -266,25 +266,34 @@ function getLastSkillId(results: ProblemResult[]): SkillId | undefined {
 /**
  * Pick the skill with the lowest average mastery from eligible skills.
  * This focuses practice on the weakest skill.
+ * When multiple skills have equal mastery, rotates among them using
+ * the answered problem count to ensure variety.
  */
 function pickLowestMasterySkill(
   skills: SkillState[],
   mastery: SkillMasteryState,
+  session?: SessionState,
 ): SkillState {
   if (skills.length === 1) return skills[0];
 
-  let lowest = skills[0];
-  let lowestPct = mastery.skillPercentages[lowest.id] ?? 0;
-
-  for (let i = 1; i < skills.length; i++) {
-    const pct = mastery.skillPercentages[skills[i].id] ?? 0;
-    if (pct < lowestPct) {
-      lowest = skills[i];
-      lowestPct = pct;
-    }
+  // Find the minimum mastery percentage
+  let lowestPct = Infinity;
+  for (const s of skills) {
+    const pct = mastery.skillPercentages[s.id] ?? 0;
+    if (pct < lowestPct) lowestPct = pct;
   }
 
-  return lowest;
+  // Collect all skills at the minimum mastery level
+  const lowestSkills = skills.filter(
+    (s) => (mastery.skillPercentages[s.id] ?? 0) === lowestPct,
+  );
+
+  // If only one is lowest, return it
+  if (lowestSkills.length === 1) return lowestSkills[0];
+
+  // Multiple skills tied at lowest: rotate using problemsAnswered
+  const answered = session?.problemsAnswered ?? 0;
+  return lowestSkills[answered % lowestSkills.length];
 }
 
 /**

@@ -292,21 +292,34 @@ export function useSession(): UseSessionReturn {
   // Keep finalizeRef up to date
   finalizeRef.current = finalizeAndEndSession;
 
+  // ── Fix StrictMode double-mount ─────────────────
+  // React StrictMode in dev mounts → unmounts → remounts.
+  // We MUST reset isActiveRef on unmount so the remount
+  // can start a fresh session. Without this, isActiveRef
+  // stays true and startSession() returns early — the
+  // timer never starts.
+  useEffect(() => {
+    return () => {
+      isActiveRef.current = false;
+    };
+  }, []);
+
   // ── Update phase on timer tick ────────────────
 
   useEffect(() => {
     if (!engineRef.current || !isActiveRef.current) return;
 
     const newPhase = getPhaseForElapsed(timer.elapsed);
-    if (newPhase !== phase) {
-      setPhase(newPhase);
-    }
 
     engineRef.current = {
       ...engineRef.current,
       phase: newPhase,
       elapsedSeconds: timer.elapsed,
     };
+
+    if (newPhase !== phase) {
+      setPhase(newPhase);
+    }
 
     // Periodic save (every 5 seconds)
     if (timer.elapsed % 5 === 0 || newPhase !== phase) {
