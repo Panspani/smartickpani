@@ -1,3 +1,5 @@
+@import url("../smartick/styles/smartick.css");
+
 :root {
   --primary: #6c63ff;
   --secondary: #ff6584;
@@ -7,6 +9,23 @@
   --card: #ffffff;
   --text: #2d3436;
   --text-light: #636e72;
+  --error: #f44336;
+  --smartick-ring-red: #ff6b6b;
+  --smartick-ring-yellow: #ffd93d;
+  --smartick-ring-green: #6bcb77;
+  --smartick-star: #f39c12;
+  --smartick-fire: #ff6b35;
+  --smartick-confetti-1: #ff6b6b;
+  --smartick-confetti-2: #ffd93d;
+  --smartick-confetti-3: #6bcb77;
+  --smartick-confetti-4: #4d96ff;
+  --smartick-star-gold: #ffd700;
+  --smartick-primary: #6c63ff;
+  --smartick-secondary: #ff6584;
+  --smartick-bg: #f0f0ff;
+  --smartick-card: #ffffff;
+  --smartick-text: #2d3436;
+  --smartick-text-light: #636e72;
 }
 
 * {
