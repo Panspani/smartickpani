@@ -1,0 +1,30 @@
+:root {
+  --primary: #6c63ff;
+  --secondary: #ff6584;
+  --success: #4caf50;
+  --warning: #ff9800;
+  --bg: #f8f9ff;
+  --card: #ffffff;
+  --text: #2d3436;
+  --text-light: #636e72;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}

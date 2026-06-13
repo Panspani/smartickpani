@@ -1,0 +1,67 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: React 19.2.6 + TypeScript 6.0.3 + Vite 8.0.11 + @vitejs/plugin-react 6.0.1
+  Architecture: Single-page app with logic/core separation (src/logic/ + src/components/)
+  App name: MateSmart — adaptive math learning for kids (ages 8-9)
+  Domain: Adaptive math learning platform following Smartick methodology
+  Parent concept: Smartick-like platform with adaptive sessions, skill progression, gamification
+  Testing: No test framework installed; TypeScript type-checking via tsc only
+  Style: Kid-friendly CSS with CSS variables, colorful theme
+  i18n: Spanish (es-AR) — UI strings, problem text, feedback
+  Bundle: Vite 8 with SWC/esbuild; no SSR, no routing yet
+
+rules:
+  proposal:
+    - Include impact on kid UX and accessibility
+    - Call out if change breaks existing problems/state
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Include sample problem scenarios for math domain
+  design:
+    - Preserve existing CSS variable theme
+    - Keep kid-friendly visual identity
+    - Document performance considerations for animation-heavy features
+    - Include component tree for UI changes
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Tag frontend/logic/testing tasks separately
+  apply:
+    - Follow existing code patterns (React 19 hooks, no class components)
+    - Maintain Spanish UI strings
+    - No external state management without design review
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: "npm run build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: false
+  runner: null
+  runner_command: ""
+  layers:
+    unit: false
+    integration: false
+    e2e: false
+    component: false
+  coverage: false
+  coverage_command: ""
+  quality:
+    linter: false
+    linter_command: ""
+    type_checker: true
+    type_checker_command: "npx tsc --noEmit"
+    formatter: false
+    formatter_command: ""
+  recommendations:
+    - "Install Vitest for unit/component testing (matches Vite ecosystem)"
+    - "Install @testing-library/react + jsdom for component tests"
+    - "Install ESLint with typescript-eslint for linting"
+    - "Install Prettier for formatting"
