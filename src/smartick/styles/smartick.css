@@ -1,0 +1,1643 @@
+/* ══════════════════════════════════════════════════════════════
+   smartick.css — All .smartick-* styles
+   Complete CSS for Smartick Math Sessions app.
+   Kid-friendly, mobile-first, pure CSS animations.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── CSS Variables (scoped to .smartick-app) ──────────────── */
+
+.smartick-app {
+  --smartick-primary: #6c63ff;
+  --smartick-secondary: #ff6584;
+  --smartick-success: #4caf50;
+  --smartick-warning: #ff9800;
+  --smartick-error: #f44336;
+  --smartick-bg: #f0f0ff;
+  --smartick-card: #ffffff;
+  --smartick-text: #2d3436;
+  --smartick-text-light: #636e72;
+  --smartick-star-gold: #ffd700;
+  --smartick-fire: #ff6b35;
+  --smartick-ring-red: #ff6b6b;
+  --smartick-ring-yellow: #ffd93d;
+  --smartick-ring-green: #6bcb77;
+  --smartick-ring-star: #6c63ff;
+  --smartick-ring-bg: #e0e0e0;
+  --smartick-confetti-1: #ff6b6b;
+  --smartick-confetti-2: #ffd93d;
+  --smartick-confetti-3: #6bcb77;
+  --smartick-confetti-4: #4d96ff;
+}
+
+/* ── @keyframes Animations ────────────────────────────────── */
+
+/* Confetti: ≤50 GPU-composited particles falling + fading */
+@keyframes smartick-confetti {
+  0% {
+    transform: translateY(-10px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(40vh) rotate(180deg) scale(1.1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(70vh) rotate(360deg) scale(0.9);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(90vh) rotate(540deg) scale(0.6);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* Star burst: scale up + fade out for "+N" popup */
+@keyframes smartick-star-burst {
+  0% {
+    transform: scale(0.5) translateY(0);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.3) translateY(-10px);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1) translateY(-20px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8) translateY(-40px);
+    opacity: 0;
+  }
+}
+
+/* Pulse red: gentle pulsing for low timer warning */
+@keyframes smartick-pulse-red {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.85;
+  }
+}
+
+/* Glow: pulsating glow for newly earned badges */
+@keyframes smartick-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--smartick-star-gold), 0 0 10px var(--smartick-star-gold);
+  }
+  50% {
+    box-shadow: 0 0 15px var(--smartick-star-gold), 0 0 30px var(--smartick-star-gold);
+  }
+}
+
+/* Fade in: general entrance */
+@keyframes smartick-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Slide up: feedback overlay entrance */
+@keyframes smartick-slide-up {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Bounce: star counter popup */
+@keyframes smartick-bounce {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Shimmer: sliding gradient for locked badges */
+@keyframes smartick-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Star appear: staggered star entrance on results screen */
+@keyframes smartick-star-appear {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.3) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SmartickApp — Root app container
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-app {
+  width: 100%;
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--smartick-bg);
+  color: var(--smartick-text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   StartScreen — Welcome / entry screen
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-start-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--smartick-primary) 0%, #8b7aff 50%, #a78bfa 100%);
+}
+
+.smartick-start-screen__content {
+  text-align: center;
+  animation: smartick-fade-in 0.6s ease-out;
+}
+
+.smartick-start-screen__title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: -1px;
+}
+
+.smartick-start-screen__subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+}
+
+.smartick-start-screen__button {
+  display: inline-block;
+  padding: 1rem 3rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--smartick-primary);
+  background: #ffffff;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  min-height: 56px;
+}
+
+.smartick-start-screen__button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.smartick-start-screen__button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SessionScreen — Active session layout
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-session-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--smartick-bg);
+}
+
+.smartick-session-screen__top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem;
+  background: var(--smartick-card);
+  border-bottom: 2px solid rgba(108, 99, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.smartick-session-screen__problem-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ProblemView — Question display
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-problem-view {
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  animation: smartick-fade-in 0.3s ease-out;
+}
+
+.smartick-problem-view__question {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.smartick-problem-view__subskill {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--smartick-text-light);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
+.smartick-problem-view__input-area {
+  margin-top: 1rem;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MultipleChoice — 2×2 option grid
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-multiple-choice {
+  width: 100%;
+}
+
+.smartick-multiple-choice__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.smartick-multiple-choice__option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  background: var(--smartick-card);
+  border: 3px solid #e0e0ff;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  min-height: 64px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.smartick-multiple-choice__option:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--smartick-primary);
+  box-shadow: 0 4px 16px rgba(108, 99, 255, 0.15);
+}
+
+.smartick-multiple-choice__option:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+.smartick-multiple-choice__option:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.smartick-multiple-choice__option--correct {
+  background: #e8f5e9;
+  border-color: var(--smartick-success);
+  color: #2e7d32;
+  animation: smartick-bounce 0.3s ease-out;
+}
+
+.smartick-multiple-choice__option--incorrect {
+  background: #fce4ec;
+  border-color: var(--smartick-error);
+  color: #c62828;
+  animation: smartick-bounce 0.3s ease-out;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   NumericInput — Type-the-answer
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-numeric-input {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.smartick-numeric-input__field-group {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.smartick-numeric-input__field {
+  flex: 1;
+  padding: 1rem 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  background: var(--smartick-card);
+  border: 3px solid #e0e0ff;
+  border-radius: 16px;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 60px;
+}
+
+.smartick-numeric-input__field:focus {
+  border-color: var(--smartick-primary);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+}
+
+.smartick-numeric-input__field::placeholder {
+  color: #b0b0b0;
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+.smartick-numeric-input__field--error {
+  border-color: var(--smartick-error);
+  background: #fff5f5;
+}
+
+.smartick-numeric-input__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  font-size: 1.5rem;
+  color: #ffffff;
+  background: var(--smartick-primary);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.smartick-numeric-input__submit:hover:not(:disabled) {
+  background: #5a52e0;
+  transform: scale(1.05);
+}
+
+.smartick-numeric-input__submit:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.smartick-numeric-input__submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.smartick-numeric-input__validation {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--smartick-error);
+  font-weight: 500;
+  text-align: center;
+  animation: smartick-fade-in 0.2s ease-out;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TimerDisplay — MM:SS countdown
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-timer-display {
+  display: inline-flex;
+  align-items: center;
+}
+
+.smartick-timer-display__digits {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--smartick-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+  transition: color 0.3s ease;
+}
+
+.smartick-timer-display--low .smartick-timer-display__digits {
+  color: var(--smartick-error);
+  animation: smartick-pulse-red 1s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   StarCounter — Stars + streak display
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-star-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.smartick-star-counter__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.smartick-star-counter__star-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.smartick-star-counter__star-count {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--smartick-star-gold);
+}
+
+.smartick-star-counter__popup {
+  position: absolute;
+  top: -10px;
+  right: -30px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--smartick-star-gold);
+  animation: smartick-star-burst 1.2s ease-out forwards;
+  pointer-events: none;
+}
+
+.smartick-star-counter__streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.smartick-star-counter__fire-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.smartick-star-counter__streak-count {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--smartick-fire);
+}
+
+.smartick-star-counter__streak-message {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--smartick-fire);
+  background: #fff3e0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  animation: smartick-bounce 0.5s ease-out;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FeedbackOverlay — Answer feedback
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-feedback-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: smartick-fade-in 0.2s ease-out;
+}
+
+.smartick-feedback-overlay--correct {
+  background: rgba(76, 175, 80, 0.9);
+}
+
+.smartick-feedback-overlay--incorrect {
+  background: rgba(255, 152, 0, 0.9);
+}
+
+.smartick-feedback-overlay--streak {
+  background: rgba(108, 99, 255, 0.88);
+}
+
+.smartick-feedback-overlay--milestone {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.9), rgba(255, 101, 132, 0.9));
+}
+
+.smartick-feedback-overlay__content {
+  text-align: center;
+  padding: 2rem;
+  animation: smartick-slide-up 0.3s ease-out;
+}
+
+.smartick-feedback-overlay__message {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  margin-bottom: 0.5rem;
+}
+
+.smartick-feedback-overlay__correct-answer {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin-top: 0.5rem;
+}
+
+.smartick-feedback-overlay__correct-answer strong {
+  font-size: 1.5rem;
+  color: #ffffff;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ResultsScreen — End-of-session summary
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-results-screen {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: linear-gradient(180deg, #e8e0ff 0%, var(--smartick-bg) 100%);
+  overflow: hidden;
+}
+
+.smartick-results-screen__confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.smartick-results-screen__confetti-particle {
+  position: absolute;
+  top: -10px;
+  border-radius: 2px;
+  animation: smartick-confetti 3.5s ease-in forwards;
+  will-change: transform, opacity;
+}
+
+.smartick-results-screen__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.smartick-results-screen__content--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.smartick-results-screen__loading {
+  font-size: 1.2rem;
+  color: var(--smartick-text-light);
+  margin-bottom: 1rem;
+}
+
+.smartick-results-screen__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--smartick-text);
+  margin-bottom: 1.5rem;
+}
+
+.smartick-results-screen__stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.smartick-results-screen__star {
+  font-size: 3rem;
+  line-height: 1;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.smartick-results-screen__star--earned {
+  color: var(--smartick-star-gold);
+  animation: smartick-star-appear 0.6s ease-out both;
+  text-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+}
+
+.smartick-results-screen__star--empty {
+  color: #d0d0d0;
+}
+
+.smartick-results-screen__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.smartick-results-screen__stat {
+  background: var(--smartick-card);
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.smartick-results-screen__stat-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--smartick-primary);
+  line-height: 1.2;
+}
+
+.smartick-results-screen__stat-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--smartick-text-light);
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.smartick-results-screen__badges {
+  margin-bottom: 2rem;
+  animation: smartick-fade-in 0.5s ease-out;
+}
+
+.smartick-results-screen__badges-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  margin-bottom: 1rem;
+}
+
+.smartick-results-screen__badges-grid {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.smartick-results-screen__badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.75rem 1rem;
+  background: var(--smartick-card);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  min-width: 90px;
+}
+
+.smartick-results-screen__badge--new {
+  animation: smartick-glow 2s ease-in-out infinite;
+}
+
+.smartick-results-screen__badge-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.smartick-results-screen__badge-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--smartick-text);
+}
+
+.smartick-results-screen__back-button {
+  display: inline-block;
+  padding: 0.9rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--smartick-primary);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+  min-height: 52px;
+}
+
+.smartick-results-screen__back-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(108, 99, 255, 0.4);
+}
+
+.smartick-results-screen__back-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ChildDashboard — Home view
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-dashboard {
+  min-height: 100vh;
+  padding: 1.5rem 1rem;
+  background: var(--smartick-bg);
+  animation: smartick-fade-in 0.4s ease-out;
+}
+
+.smartick-dashboard__loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--smartick-text-light);
+  padding: 4rem 0;
+}
+
+.smartick-dashboard__header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.smartick-dashboard__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--smartick-primary);
+  margin-bottom: 0.25rem;
+}
+
+.smartick-dashboard__subtitle {
+  font-size: 1rem;
+  color: var(--smartick-text-light);
+}
+
+.smartick-dashboard__start-area {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.smartick-dashboard__start-button {
+  display: inline-block;
+  padding: 1rem 3.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--smartick-primary), #8b7aff);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(108, 99, 255, 0.35);
+  min-height: 56px;
+}
+
+.smartick-dashboard__start-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(108, 99, 255, 0.45);
+}
+
+.smartick-dashboard__start-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.smartick-dashboard__section {
+  margin-bottom: 1.5rem;
+}
+
+.smartick-dashboard__section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  margin-bottom: 0.75rem;
+  padding-left: 0.25rem;
+}
+
+.smartick-dashboard__skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.smartick-dashboard__parent-area {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.smartick-dashboard__parent-button {
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--smartick-text-light);
+  background: transparent;
+  border: 2px solid #d0d0d0;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  min-height: 44px;
+}
+
+.smartick-dashboard__parent-button:hover {
+  border-color: var(--smartick-primary);
+  color: var(--smartick-primary);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SkillRing — SVG circular progress
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-skill-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.smartick-skill-ring__trigger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+  transition: transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.smartick-skill-ring__trigger:hover {
+  transform: scale(1.04);
+}
+
+.smartick-skill-ring__trigger:active {
+  transform: scale(0.97);
+}
+
+.smartick-skill-ring__svg {
+  width: 100%;
+  max-width: 100px;
+  height: auto;
+}
+
+.smartick-skill-ring__bg {
+  transition: stroke 0.3s ease;
+}
+
+.smartick-skill-ring__progress {
+  transition: stroke-dashoffset 0.8s ease-in-out;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.smartick-skill-ring__percentage {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+}
+
+.smartick-skill-ring__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--smartick-text-light);
+  text-align: center;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.smartick-skill-ring__subskills {
+  width: 100%;
+  margin-top: 0.5rem;
+  animation: smartick-slide-up 0.2s ease-out;
+}
+
+.smartick-skill-ring__subskills-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.smartick-skill-ring__subskill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  background: var(--smartick-card);
+  margin-bottom: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.smartick-skill-ring__subskill--mastered {
+  background: #e8f5e9;
+}
+
+.smartick-skill-ring__subskill-name {
+  flex: 1;
+  font-weight: 500;
+  color: var(--smartick-text);
+}
+
+.smartick-skill-ring__subskill-accuracy {
+  font-weight: 700;
+  color: var(--smartick-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.smartick-skill-ring__subskill-check {
+  color: var(--smartick-success);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   StreakCalendar — 7-day activity row
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-streak-calendar {
+  background: var(--smartick-card);
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.smartick-streak-calendar__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  margin-bottom: 0.5rem;
+}
+
+.smartick-streak-calendar__streak {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--smartick-fire);
+  margin-bottom: 0.75rem;
+}
+
+.smartick-streak-calendar__days {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.smartick-streak-calendar__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0;
+  flex: 1;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.smartick-streak-calendar__day--active {
+  background: #e8f5e9;
+}
+
+.smartick-streak-calendar__day--inactive {
+  background: #f5f5f5;
+}
+
+.smartick-streak-calendar__day--today {
+  border: 2px solid var(--smartick-primary);
+}
+
+.smartick-streak-calendar__day-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--smartick-text-light);
+  text-transform: uppercase;
+}
+
+.smartick-streak-calendar__day-icon {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.smartick-streak-calendar__day--active .smartick-streak-calendar__day-icon {
+  color: var(--smartick-success);
+}
+
+.smartick-streak-calendar__day--inactive .smartick-streak-calendar__day-icon {
+  color: #ccc;
+}
+
+.smartick-streak-calendar__empty-message {
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--smartick-text-light);
+  padding: 0.5rem 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BadgeDisplay — Badge grid
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-badge-display {
+  background: var(--smartick-card);
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.smartick-badge-display__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  margin-bottom: 0.75rem;
+}
+
+.smartick-badge-display__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.smartick-badge-display__badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.smartick-badge-display__badge--earned {
+  background: #fffde7;
+  border: 1px solid #fff9c4;
+}
+
+.smartick-badge-display__badge--unearned {
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  opacity: 0.6;
+}
+
+.smartick-badge-display__badge--recent {
+  animation: smartick-glow 2s ease-in-out infinite;
+}
+
+.smartick-badge-display__badge-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.smartick-badge-display__badge--unearned .smartick-badge-display__badge-icon {
+  color: #ccc;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: smartick-shimmer 2s linear infinite;
+}
+
+.smartick-badge-display__badge-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--smartick-text);
+}
+
+.smartick-badge-display__badge-description {
+  font-size: 0.7rem;
+  color: var(--smartick-text-light);
+  line-height: 1.2;
+}
+
+.smartick-badge-display__badge--unearned .smartick-badge-display__badge-name {
+  color: #b0b0b0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ParentGate — Math challenge modal
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-parent-gate {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  padding: 1rem;
+  animation: smartick-fade-in 0.2s ease-out;
+}
+
+.smartick-parent-gate__modal {
+  width: 100%;
+  max-width: 360px;
+  background: var(--smartick-card);
+  border-radius: 24px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: smartick-slide-up 0.3s ease-out;
+}
+
+.smartick-parent-gate__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--smartick-text);
+  margin-bottom: 0.5rem;
+}
+
+.smartick-parent-gate__instruction {
+  font-size: 1rem;
+  color: var(--smartick-text-light);
+  margin-bottom: 1rem;
+}
+
+.smartick-parent-gate__challenge {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--smartick-primary);
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  background: #f0f0ff;
+  border-radius: 12px;
+}
+
+.smartick-parent-gate__form {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.smartick-parent-gate__input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  background: #f8f8ff;
+  border: 2px solid #e0e0ff;
+  border-radius: 12px;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s ease;
+  min-height: 48px;
+}
+
+.smartick-parent-gate__input:focus {
+  border-color: var(--smartick-primary);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.12);
+}
+
+.smartick-parent-gate__input--error {
+  border-color: var(--smartick-error);
+  background: #fff5f5;
+}
+
+.smartick-parent-gate__submit {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--smartick-primary);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  min-height: 48px;
+  white-space: nowrap;
+}
+
+.smartick-parent-gate__submit:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+.smartick-parent-gate__submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.smartick-parent-gate__error {
+  font-size: 0.9rem;
+  color: var(--smartick-error);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  animation: smartick-fade-in 0.2s ease-out;
+}
+
+.smartick-parent-gate__cancel {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--smartick-text-light);
+  background: transparent;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  min-height: 40px;
+}
+
+.smartick-parent-gate__cancel:hover {
+  border-color: var(--smartick-text-light);
+  color: var(--smartick-text);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ParentView — Parent analytics dashboard
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-parent-view {
+  min-height: 100vh;
+  padding: 1rem;
+  background: var(--smartick-bg);
+  animation: smartick-fade-in 0.3s ease-out;
+}
+
+.smartick-parent-view__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.smartick-parent-view__title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--smartick-text);
+}
+
+.smartick-parent-view__back-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--smartick-primary);
+  background: transparent;
+  border: 2px solid var(--smartick-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  min-height: 40px;
+}
+
+.smartick-parent-view__back-button:hover {
+  background: var(--smartick-primary);
+  color: #ffffff;
+}
+
+/* ── Cards ───────────────────────────────────── */
+
+.smartick-parent-view__card {
+  background: var(--smartick-card);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.smartick-parent-view__card--warning {
+  border-left: 4px solid var(--smartick-warning);
+}
+
+.smartick-parent-view__card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  margin-bottom: 0.75rem;
+}
+
+.smartick-parent-view__card-date {
+  font-size: 0.85rem;
+  color: var(--smartick-text-light);
+  margin-bottom: 0.75rem;
+}
+
+/* ── Summary grid ────────────────────────────── */
+
+.smartick-parent-view__summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.smartick-parent-view__summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.smartick-parent-view__summary-label {
+  font-size: 0.8rem;
+  color: var(--smartick-text-light);
+  font-weight: 500;
+}
+
+.smartick-parent-view__summary-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--smartick-text);
+}
+
+/* ── Metrics grid ────────────────────────────── */
+
+.smartick-parent-view__metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.smartick-parent-view__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.smartick-parent-view__metric-label {
+  font-size: 0.8rem;
+  color: var(--smartick-text-light);
+  font-weight: 500;
+}
+
+.smartick-parent-view__metric-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--smartick-primary);
+}
+
+/* ── Warning list ────────────────────────────── */
+
+.smartick-parent-view__warning-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.smartick-parent-view__warning-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.35rem;
+  background: #fff8e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.smartick-parent-view__warning-item--critical {
+  background: #ffebee;
+  border-left: 3px solid var(--smartick-error);
+}
+
+.smartick-parent-view__warning-name {
+  font-weight: 600;
+  color: var(--smartick-text);
+}
+
+.smartick-parent-view__warning-value {
+  font-weight: 700;
+  color: var(--smartick-warning);
+  font-variant-numeric: tabular-nums;
+}
+
+.smartick-parent-view__warning-item--critical .smartick-parent-view__warning-value {
+  color: var(--smartick-error);
+}
+
+/* ── Skill breakdown ─────────────────────────── */
+
+.smartick-parent-view__skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.smartick-parent-view__skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #fafaff;
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.smartick-parent-view__skill-row--warning {
+  background: #fff8e1;
+  border-left: 3px solid var(--smartick-warning);
+}
+
+.smartick-parent-view__skill-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.smartick-parent-view__skill-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--smartick-text);
+}
+
+.smartick-parent-view__skill-sessions {
+  font-size: 0.8rem;
+  color: var(--smartick-text-light);
+}
+
+.smartick-parent-view__skill-metrics {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.smartick-parent-view__trend {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.smartick-parent-view__trend--up {
+  color: var(--smartick-success);
+}
+
+.smartick-parent-view__trend--down {
+  color: var(--smartick-error);
+}
+
+.smartick-parent-view__trend--stable {
+  color: var(--smartick-text-light);
+}
+
+.smartick-parent-view__skill-accuracy {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--smartick-text);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+/* ── Session table ───────────────────────────── */
+
+.smartick-parent-view__table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.smartick-parent-view__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.smartick-parent-view__table th {
+  text-align: left;
+  padding: 0.6rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--smartick-text-light);
+  border-bottom: 2px solid #eee;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.smartick-parent-view__table td {
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  color: var(--smartick-text);
+}
+
+.smartick-parent-view__table-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.smartick-parent-view__table-row:hover {
+  background: #f5f5ff;
+}
+
+.smartick-parent-view__table-detail td {
+  padding: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.smartick-parent-view__session-detail {
+  padding: 0.75rem 1rem;
+  background: #fafaff;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.smartick-parent-view__session-detail p {
+  margin-bottom: 0.25rem;
+}
+
+.smartick-parent-view__session-detail strong {
+  color: var(--smartick-text);
+}
+
+.smartick-parent-view__expand-icon {
+  font-size: 0.8rem;
+  color: var(--smartick-text-light);
+}
+
+/* ── Pagination ──────────────────────────────── */
+
+.smartick-parent-view__pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.smartick-parent-view__page-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--smartick-primary);
+  background: transparent;
+  border: 2px solid var(--smartick-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  min-height: 40px;
+}
+
+.smartick-parent-view__page-button:hover:not(:disabled) {
+  background: var(--smartick-primary);
+  color: #ffffff;
+}
+
+.smartick-parent-view__page-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.smartick-parent-view__page-info {
+  font-size: 0.85rem;
+  color: var(--smartick-text-light);
+  font-weight: 500;
+}
+
+.smartick-parent-view__empty {
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--smartick-text-light);
+  padding: 1rem 0;
+}
