@@ -2877,24 +2877,80 @@
 
 /* ══════════════════════════════════════════════════════════════
    MiniGameScreen — Post-session Memory card game
-   Grilla 4×4 (default), 4×3 en ≤360px
-   Flip 3D, match glow, win celebration
+   Rediseño PRO: glassmorphism, spring animations, depth + glow
    ══════════════════════════════════════════════════════════════ */
+
+/* ── Card entrance stagger ───────────────────── */
+@keyframes smartick-card-enter {
+  0% { transform: scale(0) rotateZ(8deg); opacity: 0; }
+  60% { transform: scale(1.08) rotateZ(-2deg); opacity: 1; }
+  100% { transform: scale(1) rotateZ(0deg); opacity: 1; }
+}
+
+@keyframes smartick-card-back-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes smartick-match-pop {
+  0% { transform: rotateY(180deg) scale(1); }
+  50% { transform: rotateY(180deg) scale(1.15); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+@keyframes smartick-mismatch-wobble {
+  0%, 100% { transform: rotateY(180deg) translateX(0) rotate(0deg); }
+  20% { transform: rotateY(180deg) translateX(-6px) rotate(-3deg); }
+  40% { transform: rotateY(180deg) translateX(6px) rotate(3deg); }
+  60% { transform: rotateY(180deg) translateX(-4px) rotate(-2deg); }
+  80% { transform: rotateY(180deg) translateX(4px) rotate(2deg); }
+}
+
+/* ── Container ───────────────────────────────── */
 
 .smartick-minigame {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--smartick-bg) 0%, #FFF0E0 100%);
-  padding: 1rem;
-  animation: smartick-slide-up 0.4s ease-out;
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+  padding: 1rem 1rem 0;
+  animation: smartick-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative gradient orbs */
+.smartick-minigame::before {
+  content: "";
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,107,53,0.15) 0%, transparent 70%);
+  top: -80px;
+  right: -80px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.smartick-minigame::after {
+  content: "";
+  position: fixed;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(0,184,148,0.12) 0%, transparent 70%);
+  bottom: -60px;
+  left: -60px;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 /* ── Header ──────────────────────────────────── */
 
 .smartick-minigame__header {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-minigame__header-top {
@@ -2908,8 +2964,10 @@
 .smartick-minigame__title {
   font-size: 1.6rem;
   font-weight: 800;
-  color: var(--smartick-primary);
+  color: #ffffff;
   margin: 0;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  letter-spacing: -0.02em;
 }
 
 .smartick-minigame__skip-button {
@@ -2922,24 +2980,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  border: 2px solid #D0D0E0;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 50%;
   cursor: pointer;
   font-size: 1rem;
-  color: var(--smartick-text-light);
-  transition: border-color 0.3s ease, color 0.3s ease;
+  color: rgba(255,255,255,0.5);
+  transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
   line-height: 1;
+  backdrop-filter: blur(4px);
 }
 
 .smartick-minigame__skip-button:hover {
-  border-color: var(--smartick-text-light);
-  color: var(--smartick-text);
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.8);
 }
 
 .smartick-minigame__skip-button:active {
-  transform: translateY(-50%) scale(0.92);
+  transform: translateY(-50%) scale(0.88);
 }
 
 .smartick-minigame__stats {
@@ -2950,14 +3010,54 @@
 }
 
 .smartick-minigame__stat {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.55);
 }
 
 .smartick-minigame__stat strong {
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.9);
   font-variant-numeric: tabular-nums;
+}
+
+/* ── Contextual hints ────────────────────────── */
+
+.smartick-minigame__hints {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0 auto 0.85rem;
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.smartick-minigame__hint-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.7rem;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
+  animation: smartick-fade-in 0.5s ease-out both;
+}
+
+.smartick-minigame__hint-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.smartick-minigame__hint-answer {
+  color: var(--smartick-secondary);
+  font-weight: 700;
 }
 
 /* ── Card grid ───────────────────────────────── */
@@ -2965,18 +3065,19 @@
 .smartick-minigame__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.6rem;
+  gap: 0.65rem;
   max-width: 420px;
   width: 100%;
-  margin: 0 auto 1.5rem;
-  padding: 0 0.25rem;
+  margin: 0 auto 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Card ─────────────────────────────────────── */
 
 .smartick-minigame__card {
   aspect-ratio: 1;
-  perspective: 600px;
+  perspective: 800px;
   background: transparent;
   border: none;
   padding: 0;
@@ -2987,21 +3088,40 @@
 
 .smartick-minigame__card:focus-visible {
   outline: 3px solid var(--smartick-primary);
-  outline-offset: 2px;
-  border-radius: 12px;
+  outline-offset: 3px;
+  border-radius: 14px;
 }
 
 .smartick-minigame__card:disabled {
   cursor: default;
 }
 
+/* Staggered entrance */
+.smartick-minigame__card:nth-child(1) { animation: smartick-card-enter 0.35s 0.02s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(2) { animation: smartick-card-enter 0.35s 0.06s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(3) { animation: smartick-card-enter 0.35s 0.10s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(4) { animation: smartick-card-enter 0.35s 0.14s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(5) { animation: smartick-card-enter 0.35s 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(6) { animation: smartick-card-enter 0.35s 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(7) { animation: smartick-card-enter 0.35s 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(8) { animation: smartick-card-enter 0.35s 0.30s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(9) { animation: smartick-card-enter 0.35s 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(10) { animation: smartick-card-enter 0.35s 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(11) { animation: smartick-card-enter 0.35s 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(12) { animation: smartick-card-enter 0.35s 0.46s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(13) { animation: smartick-card-enter 0.35s 0.50s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(14) { animation: smartick-card-enter 0.35s 0.54s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(15) { animation: smartick-card-enter 0.35s 0.58s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.smartick-minigame__card:nth-child(16) { animation: smartick-card-enter 0.35s 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
 .smartick-minigame__card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
   transform-style: preserve-3d;
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .smartick-minigame__card--flipped .smartick-minigame__card-inner {
@@ -3017,83 +3137,79 @@
   justify-content: center;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  border-radius: 12px;
-  border: 2px solid #FFE8D6;
+  border-radius: 14px;
 }
+
+/* ── Card front (hidden face) — glassmorphism ─── */
 
 .smartick-minigame__card-front {
-  background: linear-gradient(145deg, var(--smartick-primary) 0%, var(--smartick-primary-dark) 100%);
+  background: linear-gradient(135deg, rgba(255,107,53,0.5) 0%, rgba(255,71,87,0.3) 100%);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.12);
   z-index: 2;
-}
-
-.smartick-minigame__card-back {
-  background: var(--smartick-card);
-  transform: rotateY(180deg);
-  z-index: 1;
-  border-color: var(--smartick-primary-light);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
 }
 
 .smartick-minigame__card-question {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+
+.smartick-minigame__card:hover:not(:disabled) .smartick-minigame__card-question {
+  transform: scale(1.12);
+}
+
+/* ── Card back (revealed face) — clean white ──── */
+
+.smartick-minigame__card-back {
+  background: linear-gradient(160deg, #ffffff 0%, #f8f9ff 100%);
+  transform: rotateY(180deg);
+  z-index: 1;
+  border: 2px solid rgba(255,107,53,0.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 .smartick-minigame__card-value {
-  font-size: 2rem;
+  font-size: 2.2rem;
+  font-weight: 800;
   line-height: 1;
+  color: var(--smartick-text);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Card states ──────────────────────────────── */
 
-/* Matched — green glow, stays visible */
+/* Matched — festive pop + green glow */
 .smartick-minigame__card--matched .smartick-minigame__card-inner {
+  animation: smartick-match-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform: rotateY(180deg);
 }
 
 .smartick-minigame__card--matched .smartick-minigame__card-back {
   border-color: var(--smartick-success);
-  box-shadow: 0 0 12px rgba(0, 184, 148, 0.35), 0 0 24px rgba(0, 184, 148, 0.15);
-  animation: card-glow 1.5s ease-in-out 2;
+  background: linear-gradient(160deg, #ffffff 0%, #f0fff8 100%);
+  box-shadow:
+    0 0 16px rgba(0, 184, 148, 0.4),
+    0 0 40px rgba(0, 184, 148, 0.15),
+    inset 0 0 20px rgba(0, 184, 148, 0.05);
 }
 
-/* Mismatch — quick shake */
+.smartick-minigame__card--matched .smartick-minigame__card-value {
+  color: var(--smartick-success);
+}
+
+/* Mismatch — playful wobble */
 .smartick-minigame__card--mismatch .smartick-minigame__card-back {
-  border-color: var(--smartick-error);
-  animation: card-shake 0.4s ease-out;
+  border-color: #ff6b6b;
+  background: linear-gradient(160deg, #ffffff 0%, #fff5f5 100%);
+  animation: smartick-mismatch-wobble 0.45s ease-out;
 }
 
-/* ── Card keyframes ───────────────────────────── */
-
-@keyframes card-glow {
-  0%, 100% {
-    box-shadow: 0 0 8px rgba(0, 184, 148, 0.25);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(0, 184, 148, 0.5), 0 0 40px rgba(0, 184, 148, 0.2);
-  }
-}
-
-@keyframes card-shake {
-  0%, 100% {
-    transform: rotateY(180deg) translateX(0);
-  }
-  25% {
-    transform: rotateY(180deg) translateX(-4px);
-  }
-  75% {
-    transform: rotateY(180deg) translateX(4px);
-  }
-}
-
-/* ── Mascot ───────────────────────────────────── */
-
-.smartick-minigame__mascot {
-  display: flex;
-  justify-content: center;
-  margin-top: auto;
-  padding-bottom: 0.5rem;
+.smartick-minigame__card--mismatch .smartick-minigame__card-value {
+  color: #ff6b6b;
 }
 
 /* ── Win overlay ──────────────────────────────── */
@@ -3105,10 +3221,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
   z-index: 100;
-  animation: smartick-fade-in 0.4s ease-out;
+  animation: smartick-fade-in 0.5s ease-out;
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -3273,38 +3389,42 @@
 
 /* ══════════════════════════════════════════════════════════════
    LaberintoGame — Number maze grid cells
-   Dynamic grid (3×3, 4×4, 5×5), number cells, state feedback
+   Rediseño PRO: 3D cells, glowing path, trail effect
    ══════════════════════════════════════════════════════════════ */
 
-/* Grid cell (shared with memory grid but extended for laberinto) */
 .smartick-minigame__cell {
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--smartick-card);
-  border: 3px solid #FFE8D6;
-  border-radius: var(--smartick-radius-md);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
   cursor: pointer;
   font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
   font-size: 1.8rem;
   font-weight: 800;
-  color: var(--smartick-text);
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  color: rgba(255,255,255,0.8);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.2s ease,
+              background 0.2s ease,
+              box-shadow 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   padding: 0;
   min-height: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .smartick-minigame__cell:hover:not(:disabled) {
-  transform: scale(1.04);
-  border-color: var(--smartick-primary-light);
-  box-shadow: var(--smartick-shadow-sm);
+  transform: scale(1.06);
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.1);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 
 .smartick-minigame__cell:active:not(:disabled) {
-  transform: scale(0.95);
+  transform: scale(0.92);
 }
 
 .smartick-minigame__cell:disabled {
@@ -3313,45 +3433,60 @@
 
 .smartick-minigame__cell:focus-visible {
   outline: 3px solid var(--smartick-primary);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-/* Current position — green glow */
+/* Current position — pulsing green glow */
 .smartick-minigame__cell--current {
-  background: linear-gradient(135deg, #E8F8F5 0%, #D4F5EC 100%);
+  background: linear-gradient(135deg, rgba(0,184,148,0.25) 0%, rgba(0,184,148,0.12) 100%);
   border-color: var(--smartick-success);
-  color: #00856A;
-  box-shadow: 0 0 12px rgba(0, 184, 148, 0.3), 0 0 24px rgba(0, 184, 148, 0.12);
-  animation: smartick-bounce 0.4s ease-out;
+  color: var(--smartick-success-light);
+  box-shadow:
+    0 0 16px rgba(0, 184, 148, 0.35),
+    0 0 32px rgba(0, 184, 148, 0.12),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  animation: smartick-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Visited cells — subtle dim */
+/* Visited cells — gradient trail effect */
 .smartick-minigame__cell--visited {
-  opacity: 0.45;
-  background: #FFF5EB;
-  border-color: #E8E0D8;
+  background: linear-gradient(135deg,
+    rgba(255,107,53,0.12) 0%,
+    rgba(255,179,71,0.08) 100%);
+  border-color: rgba(255,107,53,0.2);
+  color: rgba(255,179,71,0.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* Found answers (contextual mode) — subtle confirmed */
+.smartick-minigame__cell--found {
+  background: linear-gradient(135deg,
+    rgba(0,184,148,0.15) 0%,
+    rgba(0,184,148,0.07) 100%);
+  border-color: rgba(0,184,148,0.3);
+  color: rgba(0,184,148,0.7);
 }
 
 /* Error feedback — red flash */
 .smartick-minigame__cell--error {
-  background: linear-gradient(135deg, #FFF0EE 0%, #FFE4E0 100%);
-  border-color: var(--smartick-error);
-  color: #D63031;
+  background: linear-gradient(135deg, rgba(255,118,117,0.2) 0%, rgba(255,100,100,0.1) 100%);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
   animation: smartick-shake 0.3s ease-out;
-  box-shadow: 0 0 8px rgba(255, 118, 117, 0.4);
+  box-shadow: 0 0 12px rgba(255,118,117,0.3);
 }
 
 /* Cell text */
 .smartick-minigame__cell-text {
   line-height: 1;
   pointer-events: none;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Responsive: smaller cells on narrow screens */
 @media (max-width: 360px) {
   .smartick-minigame__cell {
     font-size: 1.4rem;
-    border-width: 2px;
   }
 }
 
@@ -3528,8 +3663,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.85rem;
+  padding: 1.25rem 1rem;
+  background: linear-gradient(160deg, #1a1a2e, #16213e);
+  border-radius: 20px;
+  margin: 0.5rem 0;
+  animation: smartick-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.smartick-balanza::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 70%);
+  top: -60px;
+  right: -60px;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .smartick-balanza__header {
@@ -3538,42 +3691,57 @@
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-balanza__title {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   margin: 0;
-  color: var(--smartick-primary);
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .smartick-balanza__skip {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 1.2rem;
   cursor: pointer;
-  opacity: 0.6;
-  padding: 0.25rem;
+  color: rgba(255,255,255,0.5);
+  padding: 0.25rem 0.5rem;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: absolute;
+  right: 0;
 }
 
 .smartick-balanza__skip:hover {
-  opacity: 1;
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
 }
 
 .smartick-balanza__target {
   font-size: 1.4rem;
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.7);
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-balanza__target strong {
-  color: var(--smartick-primary);
-  font-size: 1.6rem;
+  color: var(--smartick-secondary);
+  font-size: 1.7rem;
 }
 
 /* Scale visual */
 .smartick-balanza__scale {
-  width: 260px;
-  height: 130px;
+  width: 280px;
+  height: 140px;
   position: relative;
   display: flex;
   align-items: flex-start;
@@ -3584,31 +3752,34 @@
   display: flex;
   align-items: center;
   gap: 0;
-  transform-origin: center 15px;
-  transition: transform 0.4s ease;
+  transform-origin: center 16px;
+  transition: transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
   width: 100%;
 }
 
 .smartick-balanza__pan {
-  width: 80px;
-  height: 60px;
-  border: 3px solid var(--smartick-text);
-  border-radius: 0 0 12px 12px;
+  width: 85px;
+  height: 65px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 0 0 14px 14px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 4px;
   font-size: 0.75rem;
   font-weight: 600;
-  background: var(--smartick-card);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(4px);
+  color: rgba(255,255,255,0.6);
+  transition: background 0.3s;
 }
 
 .smartick-balanza__pan--left {
-  border-color: var(--smartick-secondary);
+  border-color: rgba(255,179,71,0.4);
 }
 
 .smartick-balanza__pan--right {
-  border-color: var(--smartick-primary);
+  border-color: rgba(255,107,53,0.4);
 }
 
 .smartick-balanza__pan-label {
@@ -3616,28 +3787,31 @@
   word-break: break-word;
   text-align: center;
   line-height: 1.2;
-  max-width: 74px;
+  max-width: 78px;
+  padding-bottom: 2px;
 }
 
 .smartick-balanza__fulcrum {
   width: 8px;
-  height: 30px;
-  background: var(--smartick-text);
+  height: 32px;
+  background: rgba(255,255,255,0.2);
   border-radius: 4px 4px 0 0;
-  margin: 0 6px;
+  margin: 0 8px;
 }
 
 /* Status messages */
 .smartick-balanza__status {
-  min-height: 1.6rem;
+  min-height: 1.8rem;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-balanza__win {
   color: var(--smartick-success);
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
 .smartick-balanza__balancing {
@@ -3645,15 +3819,15 @@
 }
 
 .smartick-balanza__over {
-  color: var(--smartick-error);
+  color: #ff6b6b;
 }
 
 .smartick-balanza__under {
-  color: var(--smartick-primary);
+  color: var(--smartick-secondary);
 }
 
 .smartick-balanza__hint {
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.4);
   font-style: italic;
 }
 
@@ -3663,33 +3837,50 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-balanza__weight-btn {
-  padding: 0.6rem 1rem;
-  border: 2px solid var(--smartick-primary);
-  background: var(--smartick-card);
-  color: var(--smartick-primary);
-  border-radius: 12px;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.8);
+  border-radius: 14px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(4px);
 }
 
 .smartick-balanza__weight-btn:hover {
-  background: var(--smartick-primary);
-  color: white;
+  background: rgba(255,107,53,0.2);
+  border-color: rgba(255,107,53,0.4);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 12px rgba(255,107,53,0.15);
+}
+
+.smartick-balanza__weight-btn:active {
+  transform: translateY(0) scale(0.95);
 }
 
 .smartick-balanza__clear {
   padding: 0.4rem 1rem;
-  border: 1px solid var(--smartick-text-light);
-  background: none;
-  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
   cursor: pointer;
   font-size: 0.85rem;
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.4);
+  transition: all 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.smartick-balanza__clear:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
 }
 
 /* ── Botellas (measuring cylinder) ────────────── */
@@ -3698,8 +3889,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.85rem;
+  padding: 1.25rem 1rem;
+  background: linear-gradient(160deg, #1a1a2e, #16213e);
+  border-radius: 20px;
+  margin: 0.5rem 0;
+  animation: smartick-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.smartick-botellas::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(52,152,219,0.1) 0%, transparent 70%);
+  top: -60px;
+  left: -60px;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .smartick-botellas__header {
@@ -3708,53 +3917,71 @@
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-botellas__title {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   margin: 0;
-  color: var(--smartick-primary);
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .smartick-botellas__skip {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 1.2rem;
   cursor: pointer;
-  opacity: 0.6;
+  color: rgba(255,255,255,0.5);
   padding: 0.25rem;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: absolute;
+  right: 0;
 }
 
 .smartick-botellas__skip:hover {
-  opacity: 1;
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
 }
 
 .smartick-botellas__target {
   font-size: 1.4rem;
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.7);
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-botellas__target strong {
-  color: var(--smartick-primary);
-  font-size: 1.6rem;
+  color: #74b9ff;
+  font-size: 1.7rem;
 }
 
 /* Cylinder */
 .smartick-botellas__cylinder-wrap {
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-botellas__cylinder {
   width: 100px;
   height: 200px;
-  border: 3px solid var(--smartick-text);
+  border: 2px solid rgba(255,255,255,0.2);
   border-radius: 0 0 20px 20px;
   position: relative;
-  background: #f8f9fa;
+  background: rgba(255,255,255,0.04);
   overflow: hidden;
   border-top: none;
+  backdrop-filter: blur(2px);
 }
 
 /* Graduation marks */
@@ -3763,8 +3990,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  border-top: 1px dashed var(--smartick-text-light);
-  opacity: 0.4;
+  border-top: 1px dashed rgba(255,255,255,0.15);
 }
 
 .smartick-botellas__mark-label {
@@ -3772,7 +3998,7 @@
   left: -2.8rem;
   top: -0.45rem;
   font-size: 0.6rem;
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.35);
   width: 2.5rem;
   text-align: right;
 }
@@ -3783,8 +4009,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, #3498db, #74b9ff);
-  transition: height 0.3s ease;
+  background: linear-gradient(to top, rgba(52,152,219,0.6), rgba(116,185,255,0.4));
+  transition: height 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -3794,30 +4020,33 @@
   margin-top: 4px;
   font-size: 0.7rem;
   font-weight: 700;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 /* Target arrow */
 .smartick-botellas__target-arrow {
   position: absolute;
-  right: -1.8rem;
+  right: -2rem;
   font-size: 1.2rem;
-  color: var(--smartick-error);
+  color: #ff6b6b;
   transform: translateY(50%);
+  text-shadow: 0 0 8px rgba(255,107,107,0.4);
 }
 
 /* Status */
 .smartick-botellas__status {
-  min-height: 1.6rem;
+  min-height: 1.8rem;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-botellas__win {
   color: var(--smartick-success);
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
 .smartick-botellas__exact {
@@ -3825,15 +4054,15 @@
 }
 
 .smartick-botellas__over {
-  color: var(--smartick-error);
+  color: #ff6b6b;
 }
 
 .smartick-botellas__under {
-  color: var(--smartick-primary);
+  color: #74b9ff;
 }
 
 .smartick-botellas__hint {
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.4);
   font-style: italic;
 }
 
@@ -3844,6 +4073,8 @@
   gap: 0.5rem;
   width: 100%;
   max-width: 320px;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-botellas__control-group {
@@ -3854,7 +4085,7 @@
 
 .smartick-botellas__control-label {
   font-size: 0.8rem;
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.5);
   font-weight: 600;
 }
 
@@ -3865,35 +4096,27 @@
 }
 
 .smartick-botellas__btn {
-  padding: 0.4rem 0.7rem;
-  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 10px;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  border: 2px solid;
-  transition: all 0.15s;
-}
-
-.smartick-botellas__btn--fill {
-  border-color: #3498db;
-  color: #3498db;
-  background: white;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .smartick-botellas__btn--fill:hover:not(:disabled) {
-  background: #3498db;
-  color: white;
-}
-
-.smartick-botellas__btn--drain {
-  border-color: var(--smartick-error);
-  color: var(--smartick-error);
-  background: white;
+  background: rgba(52,152,219,0.2);
+  border-color: rgba(52,152,219,0.4);
+  transform: translateY(-1px);
 }
 
 .smartick-botellas__btn--drain:hover:not(:disabled) {
-  background: var(--smartick-error);
-  color: white;
+  background: rgba(255,107,107,0.2);
+  border-color: rgba(255,107,107,0.4);
+  transform: translateY(-1px);
 }
 
 .smartick-botellas__btn:disabled {
@@ -3903,12 +4126,20 @@
 
 .smartick-botellas__reset {
   padding: 0.4rem 1rem;
-  border: 1px solid var(--smartick-text-light);
-  background: none;
-  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
   cursor: pointer;
   font-size: 0.85rem;
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.4);
+  transition: all 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.smartick-botellas__reset:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
 }
 
 /* ── Reloj (clock) ────────────────────────────── */
@@ -3917,8 +4148,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.85rem;
+  padding: 1.25rem 1rem;
+  background: linear-gradient(160deg, #1a1a2e, #16213e);
+  border-radius: 20px;
+  margin: 0.5rem 0;
+  animation: smartick-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.smartick-reloj::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,179,71,0.1) 0%, transparent 70%);
+  top: -60px;
+  right: -60px;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .smartick-reloj__header {
@@ -3927,36 +4176,51 @@
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-reloj__title {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   margin: 0;
-  color: var(--smartick-primary);
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .smartick-reloj__skip {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 1.2rem;
   cursor: pointer;
-  opacity: 0.6;
+  color: rgba(255,255,255,0.5);
   padding: 0.25rem;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: absolute;
+  right: 0;
 }
 
 .smartick-reloj__skip:hover {
-  opacity: 1;
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
 }
 
 .smartick-reloj__target {
   font-size: 1.4rem;
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.7);
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-reloj__target strong {
-  color: var(--smartick-primary);
-  font-size: 1.6rem;
+  color: var(--smartick-secondary);
+  font-size: 1.7rem;
 }
 
 /* Clock face */
@@ -3964,17 +4228,18 @@
   width: 180px;
   height: 180px;
   border-radius: 50%;
-  border: 4px solid var(--smartick-text);
+  border: 3px solid rgba(255,255,255,0.2);
   position: relative;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .smartick-reloj__number {
   position: absolute;
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.7);
   transform: translate(-50%, -50%);
 }
 
@@ -3984,22 +4249,25 @@
   left: 50%;
   transform-origin: bottom center;
   border-radius: 4px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
 }
 
 .smartick-reloj__hand--hour {
   width: 4px;
   height: 45px;
   margin-left: -2px;
-  background: var(--smartick-text);
+  background: rgba(255,255,255,0.8);
   z-index: 2;
+  border-radius: 4px 4px 2px 2px;
 }
 
 .smartick-reloj__hand--minute {
   width: 3px;
   height: 65px;
   margin-left: -1.5px;
-  background: var(--smartick-primary);
+  background: var(--smartick-secondary);
   z-index: 1;
+  border-radius: 3px 3px 1px 1px;
 }
 
 .smartick-reloj__center {
@@ -4009,9 +4277,10 @@
   width: 10px;
   height: 10px;
   margin: -5px 0 0 -5px;
-  background: var(--smartick-primary);
+  background: var(--smartick-secondary);
   border-radius: 50%;
   z-index: 3;
+  box-shadow: 0 0 8px rgba(255,179,71,0.3);
 }
 
 /* Digital display */
@@ -4019,21 +4288,23 @@
   font-size: 1.8rem;
   font-weight: 700;
   font-family: "Courier New", monospace;
-  color: var(--smartick-primary);
+  color: var(--smartick-secondary);
   letter-spacing: 0.2em;
 }
 
 /* Status */
 .smartick-reloj__status {
-  min-height: 1.6rem;
+  min-height: 1.8rem;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-reloj__win {
   color: var(--smartick-success);
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
 .smartick-reloj__match {
@@ -4041,7 +4312,7 @@
 }
 
 .smartick-reloj__hint {
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.4);
   font-style: italic;
 }
 
@@ -4050,6 +4321,8 @@
   display: flex;
   gap: 1.5rem;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-reloj__control-group {
@@ -4061,7 +4334,7 @@
 
 .smartick-reloj__control-label {
   font-size: 0.8rem;
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.5);
   font-weight: 600;
 }
 
@@ -4075,27 +4348,29 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 2px solid var(--smartick-primary);
-  background: white;
-  color: var(--smartick-primary);
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7);
   font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .smartick-reloj__btn:hover {
-  background: var(--smartick-primary);
-  color: white;
+  background: rgba(255,179,71,0.2);
+  border-color: rgba(255,179,71,0.4);
+  transform: scale(1.1);
 }
 
 .smartick-reloj__value {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   min-width: 2ch;
   text-align: center;
+  color: rgba(255,255,255,0.9);
 }
 
 /* ── Tienda (shop / coins) ─────────────────────── */
@@ -4104,8 +4379,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.85rem;
+  padding: 1.25rem 1rem;
+  background: linear-gradient(160deg, #1a1a2e, #16213e);
+  border-radius: 20px;
+  margin: 0.5rem 0;
+  animation: smartick-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.smartick-tienda::before {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%);
+  top: -60px;
+  right: -60px;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .smartick-tienda__header {
@@ -4114,25 +4407,38 @@
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-tienda__title {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   margin: 0;
-  color: var(--smartick-primary);
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .smartick-tienda__skip {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 1.2rem;
   cursor: pointer;
-  opacity: 0.6;
+  color: rgba(255,255,255,0.5);
   padding: 0.25rem;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: absolute;
+  right: 0;
 }
 
 .smartick-tienda__skip:hover {
-  opacity: 1;
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.8);
 }
 
 /* Product display */
@@ -4141,9 +4447,12 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1.5rem;
-  background: var(--smartick-card);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  backdrop-filter: blur(4px);
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-tienda__product-emoji {
@@ -4153,13 +4462,13 @@
 .smartick-tienda__product-name {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.8);
 }
 
 .smartick-tienda__product-price {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--smartick-primary);
+  color: var(--smartick-secondary);
 }
 
 /* Payment area */
@@ -4167,22 +4476,24 @@
   width: 100%;
   max-width: 320px;
   padding: 0.6rem;
-  border: 2px dashed var(--smartick-text-light);
-  border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,0.2);
+  border-radius: 14px;
   min-height: 3rem;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-tienda__payment-header {
   display: flex;
   justify-content: space-between;
   font-size: 0.85rem;
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.4);
   margin-bottom: 0.3rem;
 }
 
 .smartick-tienda__payment-total {
   font-weight: 700;
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.8);
 }
 
 .smartick-tienda__payment-coins {
@@ -4193,7 +4504,7 @@
 }
 
 .smartick-tienda__payment-empty {
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.3);
   font-size: 0.8rem;
   font-style: italic;
 }
@@ -4204,15 +4515,17 @@
 
 /* Status */
 .smartick-tienda__status {
-  min-height: 1.6rem;
+  min-height: 1.8rem;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-tienda__win {
   color: var(--smartick-success);
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
 .smartick-tienda__exact {
@@ -4220,15 +4533,15 @@
 }
 
 .smartick-tienda__over {
-  color: var(--smartick-error);
+  color: #ff6b6b;
 }
 
 .smartick-tienda__remaining {
-  color: var(--smartick-primary);
+  color: var(--smartick-secondary);
 }
 
 .smartick-tienda__hint {
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.4);
   font-style: italic;
 }
 
@@ -4239,6 +4552,8 @@
   gap: 0.4rem;
   justify-content: center;
   max-width: 320px;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-tienda__coin-btn {
@@ -4247,17 +4562,20 @@
   align-items: center;
   gap: 0.15rem;
   padding: 0.4rem 0.6rem;
-  border: 2px solid var(--smartick-secondary);
-  background: var(--smartick-card);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   min-width: 50px;
+  backdrop-filter: blur(4px);
 }
 
 .smartick-tienda__coin-btn:hover:not(:disabled) {
-  background: var(--smartick-secondary);
-  border-color: var(--smartick-secondary-dark);
+  background: rgba(255,215,0,0.12);
+  border-color: rgba(255,215,0,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255,215,0,0.1);
 }
 
 .smartick-tienda__coin-btn:disabled {
@@ -4272,24 +4590,33 @@
 .smartick-tienda__coin-label {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.5);
 }
 
 /* Actions */
 .smartick-tienda__actions {
   display: flex;
   gap: 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-tienda__undo,
 .smartick-tienda__reset {
   padding: 0.4rem 1rem;
-  border: 1px solid var(--smartick-text-light);
-  background: none;
-  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
   cursor: pointer;
   font-size: 0.85rem;
-  color: var(--smartick-text-light);
+  color: rgba(255,255,255,0.4);
+  transition: all 0.2s;
+}
+
+.smartick-tienda__undo:hover,
+.smartick-tienda__reset:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
 }
 
 /* ── Round progress dots (shared by all games) ─── */
@@ -4298,33 +4625,37 @@
   display: flex;
   gap: 0.5rem;
   justify-content: center;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-balanza__round-dot {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
   font-weight: 700;
-  border: 2px solid var(--smartick-text-light);
-  color: var(--smartick-text-light);
-  background: var(--smartick-card);
-  transition: all 0.2s;
+  border: 2px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.4);
+  background: transparent;
+  transition: all 0.3s ease;
 }
 
 .smartick-balanza__round-dot--active {
   border-color: var(--smartick-primary);
-  color: var(--smartick-primary);
-  background: rgba(255, 107, 53, 0.08);
+  color: #ffffff;
+  background: rgba(255,107,53,0.2);
+  box-shadow: 0 0 12px rgba(255,107,53,0.2);
 }
 
 .smartick-balanza__round-dot--done {
   border-color: var(--smartick-success);
-  color: white;
+  color: #ffffff;
   background: var(--smartick-success);
+  box-shadow: 0 0 12px rgba(0,184,148,0.3);
 }
 
 /* ── Context hint for Laberinto contextual mode ── */
@@ -4332,12 +4663,13 @@
 .smartick-minigame__context-hint {
   text-align: center;
   font-size: 1.2rem;
-  color: var(--smartick-text);
+  color: rgba(255,255,255,0.8);
   margin: 0.25rem 0 0.75rem;
   padding: 0.5rem 1rem;
-  background: var(--smartick-card);
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  backdrop-filter: blur(4px);
 }
 
 /* ── Reloj option buttons (leer mode) ──────────── */
@@ -4348,41 +4680,46 @@
   gap: 0.5rem;
   width: 100%;
   max-width: 280px;
+  position: relative;
+  z-index: 1;
 }
 
 .smartick-reloj__option-btn {
   padding: 0.7rem;
-  border: 2px solid var(--smartick-secondary);
-  background: var(--smartick-card);
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
   border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 700;
   font-family: "Courier New", monospace;
   cursor: pointer;
-  transition: all 0.15s;
-  color: var(--smartick-text);
+  transition: all 0.2s;
+  color: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
 }
 
 .smartick-reloj__option-btn:hover {
-  background: var(--smartick-secondary);
-  color: white;
+  background: rgba(255,179,71,0.1);
+  border-color: rgba(255,179,71,0.3);
+  color: rgba(255,255,255,0.9);
 }
 
 .smartick-reloj__option-btn--correct {
-  border-color: var(--smartick-success);
-  background: var(--smartick-success-light);
-  color: white;
+  border-color: var(--smartick-success) !important;
+  background: rgba(0,184,148,0.2) !important;
+  color: #ffffff !important;
 }
 
 .smartick-reloj__option-btn--wrong {
-  border-color: var(--smartick-error);
-  background: #ffe0e0;
+  border-color: #ff6b6b !important;
+  background: rgba(255,107,107,0.15) !important;
+  color: #ff6b6b !important;
 }
-
 /* ── Cell states for contextual Laberinto ──────── */
 
 .smartick-minigame__cell--found {
-  background: var(--smartick-success-light) !important;
-  border-color: var(--smartick-success) !important;
-  opacity: 0.7;
+  background: linear-gradient(135deg, rgba(0,184,148,0.2) 0%, rgba(0,184,148,0.1) 100%);
+  border-color: rgba(0,184,148,0.4);
+  color: var(--smartick-success-light);
+  opacity: 0.85;
 }

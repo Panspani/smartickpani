@@ -71,33 +71,36 @@ function createCards(pairCount: number): Card[] {
 }
 
 /**
- * Create a shuffled deck of contextual problem→answer cards.
- * Each problem generates a pair: one card shows the problem text,
- * the matching card shows the answer.
+ * Create a shuffled deck of contextual memory cards.
+ * Each problem generates a pair of IDENTICAL answer-number cards
+ * (classic memory style — all cards show numbers only).
+ * The problems are displayed as hints above the grid.
  */
-function createContextualCards(problems: Problem[]): Card[] {
-  const count = Math.min(problems.length, 6); // max 6 pairs
+function createContextualCards(problems: Problem[]): { cards: Card[]; hints: Problem[] } {
+  const count = Math.min(problems.length, 6);
   const selected = problems.slice(0, count);
   const pairs = selected.flatMap((problem, index) => {
+    // Use a unique pairId so only exact pair matches
     const pairId = `ctx-${index}`;
+    const displayText = String(problem.answer);
     return [
       {
         id: index * 2,
         value: pairId,
-        displayText: problem.text.replace(/\?$/, " = ?"),
+        displayText,
         isFlipped: false,
         isMatched: false,
       },
       {
         id: index * 2 + 1,
         value: pairId,
-        displayText: String(problem.answer),
+        displayText,
         isFlipped: false,
         isMatched: false,
       },
     ];
   });
-  return shuffleArray(pairs);
+  return { cards: shuffleArray(pairs), hints: selected };
 }
 
 /** Generate confetti particles for the win celebration. */
@@ -140,11 +143,19 @@ const MiniGameScreen: React.FC<MiniGameScreenProps> = ({
   // Determine pair count based on viewport
   const [pairCount] = useState(() => (window.innerWidth <= 360 ? 6 : 8));
 
-  const [cards, setCards] = useState<Card[]>(() =>
-    isContextual && contextualProblems
-      ? createContextualCards(contextualProblems)
-      : createCards(pairCount),
+  // Build contextual deck once (cards + hints)
+  const contextualDeck = useMemo(
+    () =>
+      isContextual && contextualProblems
+        ? createContextualCards(contextualProblems)
+        : null,
+    [isContextual, contextualProblems],
   );
+
+  const [cards, setCards] = useState<Card[]>(() =>
+    contextualDeck ? contextualDeck.cards : createCards(pairCount),
+  );
+  const [hints] = useState<Problem[]>(() => contextualDeck?.hints ?? []);
   const [flippedIds, setFlippedIds] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [isChecking, setIsChecking] = useState(false);
@@ -233,14 +244,16 @@ const MiniGameScreen: React.FC<MiniGameScreenProps> = ({
     return <PuzzleGame onWin={onWin} onSkip={onSkip} />;
   }
 
-  // ── Memory game (existing, unchanged) ──────────
+  // ── Memory game ────────────────────────────────
 
   return (
     <div className="smartick-minigame">
       {/* ── Header ──────────────────────────────── */}
       <header className="smartick-minigame__header">
         <div className="smartick-minigame__header-top">
-          <h2 className="smartick-minigame__title">🎮 Memoria</h2>
+          <h2 className="smartick-minigame__title">
+            {isContextual ? "🧠 Encontrá los pares" : "🎮 Memoria"}
+          </h2>
           {gamePhase === "playing" && (
             <button
               className="smartick-minigame__skip-button"
@@ -261,6 +274,22 @@ const MiniGameScreen: React.FC<MiniGameScreenProps> = ({
           </span>
         </div>
       </header>
+
+      {/* ── Contextual hints ────────────────────── */}
+      {hints.length > 0 && (
+        <div className="smartick-minigame__hints">
+          {hints.map((p, i) => (
+            <span key={i} className="smartick-minigame__hint-item">
+              <span className="smartick-minigame__hint-text">
+                {p.text.replace(/\?$/, "")} ={" "}
+                <strong className="smartick-minigame__hint-answer">
+                  {p.answer}
+                </strong>
+              </span>
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* ── Card grid ───────────────────────────── */}
       <div className="smartick-minigame__grid">
