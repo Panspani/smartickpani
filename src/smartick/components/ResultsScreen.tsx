@@ -13,15 +13,21 @@
  */
 
 import React, { useMemo, useEffect, useState } from "react";
-import type { SessionResult, Badge } from "../engine/types";
-import { computeStars, selectMessage } from "../engine/scoring";
+import type { Problem, SessionResult, Badge } from "../engine/types";
+import { computeStars } from "../engine/scoring";
 import { useStorage } from "../hooks/useStorage";
+import MonsterDisplay from "./MonsterDisplay";
+import type { MonsterState } from "./MonsterDisplay";
 
 export interface ResultsScreenProps {
   /** The session result ID to look up. */
   sessionResultId: string | null;
   /** Callback to navigate back to the home/dashboard view. */
   onGoHome: () => void;
+  /** Callback to navigate to the minigame (optional — shows "Jugar" button). */
+  onPlayGame?: () => void;
+  /** Callback to navigate to the correction phase. Receives incorrect problems and session stars. */
+  onCorrection?: (problems: Problem[], existingStars: number) => void;
 }
 
 /** Generate deterministic confetti particles (≤50). */
@@ -62,10 +68,13 @@ function generateConfetti(): Array<{
 const ResultsScreen: React.FC<ResultsScreenProps> = ({
   sessionResultId,
   onGoHome,
+  onPlayGame,
+  onCorrection,
 }) => {
   const storage = useStorage();
   const [showContent, setShowContent] = useState(false);
   const [starsAnimated, setStarsAnimated] = useState(false);
+  const [monsterState, setMonsterState] = useState<MonsterState>("celebration");
 
   // Find the session result
   const result: SessionResult | null = useMemo(() => {
@@ -89,6 +98,13 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({
       return () => clearTimeout(timer);
     }
   }, [showContent]);
+
+  // Monster celebration → idle after 3s
+  useEffect(() => {
+    if (monsterState !== "celebration") return;
+    const timer = setTimeout(() => setMonsterState("idle"), 3000);
+    return () => clearTimeout(timer);
+  }, [monsterState]);
 
   if (!result) {
     return (
@@ -115,8 +131,16 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({
     result.streakMax,
   );
 
-  const endMessage = selectMessage("session-end");
   const hasBadges = result.badgesEarned && result.badgesEarned.length > 0;
+
+  // Incorrect problems for correction phase
+  const incorrectProblems: Problem[] = useMemo(() => {
+    return result.problems
+      .filter((p) => !p.isCorrect)
+      .map((p) => p.problem);
+  }, [result]);
+
+  const hasIncorrect = incorrectProblems.length > 0;
 
   return (
     <div className="smartick-results-screen">
@@ -144,7 +168,11 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({
           showContent ? "smartick-results-screen__content--visible" : ""
         }`}
       >
-        <h2 className="smartick-results-screen__title">{endMessage}</h2>
+        <div style={{ marginBottom: "1rem" }}>
+          <MonsterDisplay state={monsterState} size="large" />
+        </div>
+
+        <h2 className="smartick-results-screen__title">🌟 Misión cumplida</h2>
 
         {/* Stars */}
         <div className="smartick-results-screen__stars" aria-label={`${starRating} de 3 estrellas`}>
@@ -229,6 +257,47 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({
         >
           Volver
         </button>
+
+        {/* Correction button */}
+        {onCorrection && hasIncorrect && (
+          <div className="smartick-results-screen__correction-prompt">
+            <p className="smartick-results-screen__correction-text">
+              ¡Ahora podés corregir tus errores y ganar estrellas!
+            </p>
+            <button
+              className="smartick-results-screen__correction-button"
+              onClick={() => onCorrection(incorrectProblems, result.totalStars)}
+              type="button"
+            >
+              ✨ Corregir y ganar estrellas
+            </button>
+          </div>
+        )}
+
+        {/* Play mini-game prompt */}
+        {onPlayGame && (
+          <div className="smartick-results-screen__game-prompt">
+            <p className="smartick-results-screen__game-question">
+              ¿Jugar un juego?
+            </p>
+            <div className="smartick-results-screen__game-buttons">
+              <button
+                className="smartick-results-screen__play-button"
+                onClick={onPlayGame}
+                type="button"
+              >
+                🎮 ¡Sí!
+              </button>
+              <button
+                className="smartick-results-screen__skip-button"
+                onClick={onGoHome}
+                type="button"
+              >
+                Volver al inicio
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

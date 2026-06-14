@@ -77,10 +77,11 @@ const MultipleChoice: React.FC<MultipleChoiceProps> = ({
           let className = "smartick-multiple-choice__option";
 
           if (answerState.status === "answered") {
-            if (value === correctAnswer) {
-              className += " smartick-multiple-choice__option--correct";
-            } else if (value === answerState.selected) {
-              className += " smartick-multiple-choice__option--incorrect";
+            if (value === answerState.selected) {
+              // Highlight the selected option only
+              className += answerState.isCorrect
+                ? " smartick-multiple-choice__option--correct"
+                : " smartick-multiple-choice__option--incorrect";
             }
           }
 

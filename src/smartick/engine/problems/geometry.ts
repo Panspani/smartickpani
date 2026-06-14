@@ -109,6 +109,14 @@ function generadorFigClasificacion(ctx: GeneratorContext): GeneratorResult {
     answer,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, answer]),
+    visualData: {
+      type: "shape",
+      data: {
+        shapeName: shape.name,
+        sides: shape.sides,
+        showLabels: true,
+      },
+    },
   };
 }
 
@@ -128,6 +136,32 @@ function getParallelPairs(name: string): number {
     default:
       return 0;
   }
+}
+
+/**
+ * Map a shape name (as used in SimetriaEntry) to its number of sides.
+ */
+function getSidesFromName(nombre: string): number {
+  const map: Record<string, number> = {
+    triángulo: 3,
+    "triángulo equilátero": 3,
+    "triángulo isósceles": 3,
+    "triángulo escaleno": 3,
+    cuadrado: 4,
+    rectángulo: 4,
+    rombo: 4,
+    trapecio: 4,
+    "trapecio isósceles": 4,
+    paralelogramo: 4,
+    pentágono: 5,
+    "pentágono regular": 5,
+    hexágono: 6,
+    "hexágono regular": 6,
+    octágono: 8,
+    "octágono regular": 8,
+    círculo: 0,
+  };
+  return map[nombre] ?? 0;
 }
 
 // ──────────────────────────────────────────────
@@ -256,6 +290,15 @@ function generadorFigSimetria(ctx: GeneratorContext): GeneratorResult {
       answer: 0, // "infinitos" pero representamos como 0
       type: "multiple-choice",
       options: rngShuffle(rng, [0, 1, 2, 4]),
+      visualData: {
+        type: "shape",
+        data: {
+          shapeName: "círculo",
+          sides: 0,
+          showLabels: false,
+          highlightProperty: "symmetry",
+        },
+      },
     };
   }
 
@@ -274,6 +317,261 @@ function generadorFigSimetria(ctx: GeneratorContext): GeneratorResult {
     answer: fig.ejes,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, fig.ejes]),
+    visualData: {
+      type: "shape",
+      data: {
+        shapeName: fig.nombre,
+        sides: getSidesFromName(fig.nombre),
+        showLabels: false,
+        highlightProperty: "symmetry",
+      },
+    },
+  };
+}
+
+// ──────────────────────────────────────────────
+// Solid Geometry Definitions
+// ──────────────────────────────────────────────
+
+interface SolidEntry {
+  solidName: string;
+  vertices: number;
+  edges: number;
+  faces: number;
+  tipo: "prisma" | "pirámide" | "cilindro" | "cono" | "esfera";
+}
+
+const PRISMAS: SolidEntry[] = [
+  { solidName: "prisma triangular", vertices: 6, edges: 9, faces: 5, tipo: "prisma" },
+  { solidName: "cubo", vertices: 8, edges: 12, faces: 6, tipo: "prisma" },
+  { solidName: "prisma rectangular", vertices: 8, edges: 12, faces: 6, tipo: "prisma" },
+  { solidName: "prisma pentagonal", vertices: 10, edges: 15, faces: 7, tipo: "prisma" },
+  { solidName: "prisma hexagonal", vertices: 12, edges: 18, faces: 8, tipo: "prisma" },
+];
+
+const PIRAMIDES: SolidEntry[] = [
+  { solidName: "pirámide triangular", vertices: 4, edges: 6, faces: 4, tipo: "pirámide" },
+  { solidName: "pirámide cuadrangular", vertices: 5, edges: 8, faces: 5, tipo: "pirámide" },
+  { solidName: "pirámide pentagonal", vertices: 6, edges: 10, faces: 6, tipo: "pirámide" },
+  { solidName: "pirámide hexagonal", vertices: 7, edges: 12, faces: 7, tipo: "pirámide" },
+];
+
+const CUERPOS_REDONDOS: SolidEntry[] = [
+  { solidName: "cilindro", vertices: 0, edges: 2, faces: 3, tipo: "cilindro" },
+  { solidName: "cono", vertices: 1, edges: 1, faces: 2, tipo: "cono" },
+  { solidName: "esfera", vertices: 0, edges: 0, faces: 1, tipo: "esfera" },
+];
+
+const ALL_SOLIDS: SolidEntry[] = [...PRISMAS, ...PIRAMIDES, ...CUERPOS_REDONDOS];
+
+// ──────────────────────────────────────────────
+// Skill-12-01: Prismas y pirámides
+// ──────────────────────────────────────────────
+
+function generadorPrismasPiramides(ctx: GeneratorContext): GeneratorResult {
+  const rng = createSeededRng(ctx.seed + ctx.sessionProblemIndex * 113 + 1);
+
+  let text: string;
+  let answer: number;
+  let solid: SolidEntry;
+
+  switch (ctx.tier) {
+    case 1: {
+      // EASY: basic prisms and pyramids — count faces, vertices, edges
+      solid = rngPick(rng, [PRISMAS[0], PRISMAS[1], PIRAMIDES[0], PIRAMIDES[1]]);
+      const preguntas = [
+        `¿Cuántas caras tiene un ${solid.solidName}?`,
+        `¿Cuántos vértices tiene un ${solid.solidName}?`,
+        `¿Cuántas aristas tiene un ${solid.solidName}?`,
+      ];
+      const qIdx = ctx.sessionProblemIndex % 3;
+      text = preguntas[qIdx];
+      answer = qIdx === 0 ? solid.faces : qIdx === 1 ? solid.vertices : solid.edges;
+      break;
+    }
+    case 2: {
+      // MEDIUM: pentagonal / hexagonal prisms and pyramids
+      solid = rngPick(rng, [PRISMAS[3], PRISMAS[4], PIRAMIDES[2], PIRAMIDES[3]]);
+      const qIdx = ctx.sessionProblemIndex % 2;
+      const preguntas = [
+        `¿Cuántas caras tiene un ${solid.solidName}?`,
+        `¿Cuántas aristas tiene un ${solid.solidName}?`,
+      ];
+      text = preguntas[qIdx];
+      answer = qIdx === 0 ? solid.faces : solid.edges;
+      break;
+    }
+    default: {
+      // HARD: compare a prism vs a pyramid
+      const prisma = rngPick(rng, PRISMAS);
+      const piramide = rngPick(rng, PIRAMIDES);
+      answer = Math.abs(prisma.edges - piramide.edges);
+      text = `¿Cuántas aristas más tiene un ${prisma.solidName} que una ${piramide.solidName}?`;
+      solid = prisma;
+      break;
+    }
+  }
+
+  const errors = [answer + 1, answer - 1, answer + 2, answer - 2];
+  const options = generateDistractors(answer, 3, rng, errors);
+
+  return {
+    text,
+    answer,
+    type: "multiple-choice",
+    options: rngShuffle(rng, [...options, answer]),
+    visualData: {
+      type: "solid",
+      data: {
+        solidName: solid.solidName,
+        vertices: solid.vertices,
+        edges: solid.edges,
+        faces: solid.faces,
+      },
+    },
+  };
+}
+
+// ──────────────────────────────────────────────
+// Skill-12-02: Cilindros, conos, esferas
+// ──────────────────────────────────────────────
+
+function generadorCilindrosConosEsferas(ctx: GeneratorContext): GeneratorResult {
+  const rng = createSeededRng(ctx.seed + ctx.sessionProblemIndex * 127 + 1);
+
+  let text: string;
+  let answer: number;
+  let solid: SolidEntry;
+
+  switch (ctx.tier) {
+    case 1: {
+      // EASY: identify cylinders, cones, spheres by description
+      solid = rngPick(rng, CUERPOS_REDONDOS);
+      const preguntas = [
+        `¿Cuántas caras tiene un ${solid.solidName}?`,
+        `¿Cuántas aristas tiene un ${solid.solidName}?`,
+        `¿Cuántos vértices tiene un ${solid.solidName}?`,
+      ];
+      const qIdx = ctx.sessionProblemIndex % 3;
+      text = preguntas[qIdx];
+      answer = qIdx === 0 ? solid.faces : qIdx === 1 ? solid.edges : solid.vertices;
+      break;
+    }
+    case 2: {
+      // MEDIUM: compare a redondo solid against a prism/pyramid
+      const redondo = rngPick(rng, CUERPOS_REDONDOS);
+      const solido = rngPick(rng, ALL_SOLIDS.filter((s) => s.tipo !== redondo.tipo));
+
+      if (rng() > 0.5) {
+        text = `¿Cuántas caras tiene un ${redondo.solidName}?`;
+        answer = redondo.faces;
+        solid = redondo;
+      } else {
+        text = `¿Cuántos vértices tiene un ${redondo.solidName}?`;
+        answer = redondo.vertices;
+        solid = redondo;
+      }
+      break;
+    }
+    default: {
+      // HARD: count edges of curved solids
+      solid = rngPick(rng, CUERPOS_REDONDOS);
+      text = `¿Cuántas aristas tiene un ${solid.solidName}?`;
+      answer = solid.edges;
+      break;
+    }
+  }
+
+  const errors = [answer + 1, answer - 1, answer + 2, answer > 0 ? answer - 2 : 2];
+  const options = generateDistractors(answer, 3, rng, errors);
+
+  return {
+    text,
+    answer,
+    type: "multiple-choice",
+    options: rngShuffle(rng, [...options, answer]),
+    visualData: {
+      type: "solid",
+      data: {
+        solidName: solid.solidName,
+        vertices: solid.vertices,
+        edges: solid.edges,
+        faces: solid.faces,
+      },
+    },
+  };
+}
+
+// ──────────────────────────────────────────────
+// Skill-12-03: Aristas, vértices, caras
+// ──────────────────────────────────────────────
+
+function generadorAristasVertices(ctx: GeneratorContext): GeneratorResult {
+  const rng = createSeededRng(ctx.seed + ctx.sessionProblemIndex * 131 + 1);
+
+  let text: string;
+  let answer: number;
+  let solid: SolidEntry;
+
+  switch (ctx.tier) {
+    case 1: {
+      // EASY: well-known solids — cube, triangular prism, square pyramid
+      solid = rngPick(rng, [PRISMAS[1], PRISMAS[0], PIRAMIDES[1]]);
+      const preguntas = [
+        `¿Cuántos vértices tiene un ${solid.solidName}?`,
+        `¿Cuántas aristas tiene un ${solid.solidName}?`,
+        `¿Cuántas caras tiene un ${solid.solidName}?`,
+      ];
+      const qIdx = ctx.sessionProblemIndex % 3;
+      text = preguntas[qIdx];
+      answer = qIdx === 0 ? solid.vertices : qIdx === 1 ? solid.edges : solid.faces;
+      break;
+    }
+    case 2: {
+      // MEDIUM: any prism or pyramid
+      solid = rngPick(rng, [...PRISMAS, ...PIRAMIDES]);
+      const qIdx = ctx.sessionProblemIndex % 3;
+      const preguntas = [
+        `¿Cuántas aristas tiene un ${solid.solidName}?`,
+        `¿Cuántos vértices tiene un ${solid.solidName}?`,
+        `¿Cuántas caras tiene un ${solid.solidName}?`,
+      ];
+      text = preguntas[qIdx];
+      answer = qIdx === 0 ? solid.edges : qIdx === 1 ? solid.vertices : solid.faces;
+      break;
+    }
+    default: {
+      // HARD: find the relationship (Euler's formula for 3rd grade level)
+      // Ask: vertices + faces - edges = ?
+      solid = rngPick(rng, [...PRISMAS, ...PIRAMIDES]);
+      const relacion = solid.vertices + solid.faces - solid.edges;
+      const preguntas = [
+        `Un ${solid.solidName} tiene ${solid.vertices} vértices, ${solid.faces} caras y ${solid.edges} aristas. ¿Cuánto es vértices + caras - aristas?`,
+        `Si un ${solid.solidName} tiene ${solid.vertices} vértices y ${solid.faces} caras, ¿cuánto suman?`,
+      ];
+      text = rngPick(rng, preguntas);
+      answer = preguntas.indexOf(text) === 0 ? relacion : solid.vertices + solid.faces;
+      break;
+    }
+  }
+
+  const errors = [answer + 1, answer - 1, answer + 2];
+  const options = generateDistractors(answer, 3, rng, errors);
+
+  return {
+    text,
+    answer,
+    type: "multiple-choice",
+    options: rngShuffle(rng, [...options, answer]),
+    visualData: {
+      type: "solid",
+      data: {
+        solidName: solid.solidName,
+        vertices: solid.vertices,
+        edges: solid.edges,
+        faces: solid.faces,
+      },
+    },
   };
 }
 
@@ -287,4 +585,7 @@ export const geometryGenerators: Partial<
   [SUB_SKILL_IDS.FIG_CLASIFICACION]: generadorFigClasificacion,
   [SUB_SKILL_IDS.FIG_PERIMETRO]: generadorFigPerimetro,
   [SUB_SKILL_IDS.FIG_SIMETRIA]: generadorFigSimetria,
+  [SUB_SKILL_IDS.CUERPOS_PRISMAS_PIRAMIDES]: generadorPrismasPiramides,
+  [SUB_SKILL_IDS.CUERPOS_CILINDROS_CONOS_ESFERAS]: generadorCilindrosConosEsferas,
+  [SUB_SKILL_IDS.CUERPOS_ARISTAS_VERTICES]: generadorAristasVertices,
 };

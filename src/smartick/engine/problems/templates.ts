@@ -10,6 +10,8 @@ import { divisionRemainderGenerators } from "./division-remainder";
 import { geometryGenerators } from "./geometry";
 import { measurementGenerators } from "./measurement";
 import { timeMoneyGenerators } from "./time-money";
+import { estimationGenerators } from "./estimation";
+import { capMassGenerators } from "./cap-mass-problems";
 
 // ──────────────────────────────────────────────
 // Seeded Pseudo-Random Number Generator
@@ -126,6 +128,8 @@ export function buildGeneratorRegistry(): Record<SubSkillId, ProblemGenerator> {
     ...geometryGenerators,
     ...measurementGenerators,
     ...timeMoneyGenerators,
+    ...estimationGenerators,
+    ...capMassGenerators,
   } as Record<SubSkillId, ProblemGenerator>;
 }
 

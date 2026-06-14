@@ -69,11 +69,24 @@ function generadorTablas(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(product, 3, rng, errors);
 
+  // Object group visual: show `groups` rows of `perGroup` items
+  const icons = ["⭐", "🍎", "📚", "🎨", "🧮", "🎲", "✏️", "🌈"];
+  const icon = icons[(a * b) % icons.length];
+  const visualData = {
+    type: "object-group" as const,
+    data: {
+      groups: a,
+      perGroup: b,
+      icon,
+    },
+  };
+
   return {
     text,
     answer: product,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, product]),
+    visualData,
   };
 }
 
@@ -244,38 +257,49 @@ function generadorMultProblemas(ctx: GeneratorContext): GeneratorResult {
 
   let text: string;
   let answer: number;
+  let grupos = 0;
+  let porGrupo = 0;
 
   switch (ctx.tier) {
     case 1: {
       // EASY: grupos pequeños, multiplicador 2–4
-      const grupos = rngInt(rng, 2, 4);
-      const porGrupo = rngInt(rng, 2, 5);
+      grupos = rngInt(rng, 2, 4);
+      porGrupo = rngInt(rng, 2, 5);
       answer = grupos * porGrupo;
       text = `Ana tiene ${grupos} bolsas con ${porGrupo} ${cosa} cada una. ¿Cuántos ${cosa} tiene en total?`;
       break;
     }
     case 2: {
       // MEDIUM: grupos más grandes
-      const grupos = rngInt(rng, 3, 7);
-      const porGrupo = rngInt(rng, 3, 8);
+      grupos = rngInt(rng, 3, 7);
+      porGrupo = rngInt(rng, 3, 8);
       answer = grupos * porGrupo;
       text = `En la fiesta hay ${grupos} platos con ${porGrupo} ${cosa} cada uno. ¿Cuántos ${cosa} hay en total?`;
       break;
     }
     default: {
       // HARD: situaciones de arrays / repetición
-      const filas = rngInt(rng, 4, 9);
-      const columnas = rngInt(rng, 4, 9);
-      answer = filas * columnas;
-      text = `Ana organiza sus ${cosa} en ${filas} filas y ${columnas} columnas. ¿Cuántos ${cosa} tiene en total?`;
+      grupos = rngInt(rng, 4, 9);
+      porGrupo = rngInt(rng, 4, 9);
+      answer = grupos * porGrupo;
+      text = `Ana organiza sus ${cosa} en ${grupos} filas y ${porGrupo} columnas. ¿Cuántos ${cosa} tiene en total?`;
       break;
     }
   }
+
+  // Object group visual
+  const iconsMult = ["🍎", "📚", "🎒", "🧸", "🎨", "🧮", "🎲", "✏️"];
+  const icon = iconsMult[contexto % iconsMult.length];
+  const visualData = {
+    type: "object-group" as const,
+    data: { groups: grupos, perGroup: porGrupo, icon },
+  };
 
   return {
     text,
     answer,
     type: "numeric-input",
+    visualData,
   };
 }
 

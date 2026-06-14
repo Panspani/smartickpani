@@ -107,6 +107,7 @@ export function useTimer(durationSeconds: number = 900): UseTimerReturn {
     return () => {
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
   }, []);

@@ -1,8 +1,8 @@
 /**
  * SmartickApp — Root component: view router + Provider.
  *
- * Uses useReducer for state-based navigation between 4 views:
- *   'dashboard' | 'session' | 'results' | 'parent'
+ * Uses useReducer for state-based navigation between 5 views:
+ *   'dashboard' | 'session' | 'results' | 'minigame' | 'parent'
  *
  * Mounts the appropriate screen component and wraps children with
  * access to useStorage via prop drilling.
@@ -10,16 +10,19 @@
  * @module components/SmartickApp
  */
 
-import React, { useReducer, useCallback, useRef } from "react";
-import type { View } from "../engine/types";
+import React, { useReducer, useCallback, useRef, useState } from "react";
+import type { Problem, View } from "../engine/types";
 import { VIEWS } from "../engine/types";
 import { createAudioContext, isAudioInitialized } from "../audio/sounds";
 import StartScreen from "./StartScreen";
 import SessionScreen from "./SessionScreen";
 import ResultsScreen from "./ResultsScreen";
+import CorrectionPhase from "./CorrectionPhase";
+import MiniGameScreen from "./MiniGameScreen";
 import ChildDashboard from "./ChildDashboard";
 import ParentGate from "./ParentGate";
 import ParentView from "./ParentView";
+import OnboardingCarousel from "./OnboardingCarousel";
 
 // ──────────────────────────────────────────────
 // State & Actions
@@ -73,7 +76,18 @@ const SmartickApp: React.FC = () => {
     sessionResultId: null,
   });
 
-  const [gateChallenge, setGateChallenge] = React.useState<{
+  // ── Onboarding gate ───────────────────────────
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    return localStorage.getItem("smartick.onboardingDone") !== "true";
+  });
+
+  const handleOnboardingComplete = useCallback(() => {
+    setShowOnboarding(false);
+  }, []);
+
+  // ── Parent gate ───────────────────────────────
+
+  const [gateChallenge, setGateChallenge] = useState<{
     a: number;
     b: number;
   } | null>(null);
@@ -97,6 +111,8 @@ const SmartickApp: React.FC = () => {
   );
 
   const goHome = useCallback(() => {
+    setCorrectionProblems([]);
+    setSessionStars(0);
     dispatch({ type: "GO_HOME" });
   }, []);
 
@@ -119,6 +135,54 @@ const SmartickApp: React.FC = () => {
 
   const goToDashboard = useCallback(() => {
     dispatch({ type: "NAVIGATE", view: VIEWS.HOME });
+  }, []);
+
+  // ── Correction state ──────────────────────────
+
+  const [correctionProblems, setCorrectionProblems] = useState<Problem[]>([]);
+  const [sessionStars, setSessionStars] = useState(0);
+
+  // ── Minigame handlers ─────────────────────────
+
+  const handleMinigameSkip = useCallback(() => {
+    dispatch({ type: "GO_HOME" });
+  }, []);
+
+  const handleMinigameWin = useCallback(
+    (_starsToAdd: number) => {
+      // Las estrellas bonus son un premio visual de la sesión,
+      // no se persisten en localStorage (bonus no permanente).
+      dispatch({ type: "GO_HOME" });
+    },
+    [],
+  );
+
+  const goToMinigame = useCallback(() => {
+    dispatch({ type: "NAVIGATE", view: VIEWS.MINIGAME });
+  }, []);
+
+  // ── Correction handlers ───────────────────────
+
+  const handleCorrection = useCallback(
+    (problems: Problem[], stars: number) => {
+      setCorrectionProblems(problems);
+      setSessionStars(stars);
+      dispatch({ type: "NAVIGATE", view: VIEWS.CORRECTION });
+    },
+    [],
+  );
+
+  const handleCorrectionComplete = useCallback(
+    (_extraStars: number) => {
+      // Extra stars from correction are a visual bonus — not persisted.
+      // Navigate to mini-game after correction.
+      dispatch({ type: "NAVIGATE", view: VIEWS.MINIGAME });
+    },
+    [],
+  );
+
+  const handleCorrectionSkip = useCallback(() => {
+    dispatch({ type: "NAVIGATE", view: VIEWS.MINIGAME });
   }, []);
 
   // ── Render current view ───────────────────────
@@ -145,6 +209,26 @@ const SmartickApp: React.FC = () => {
           <ResultsScreen
             sessionResultId={state.sessionResultId}
             onGoHome={goHome}
+            onPlayGame={goToMinigame}
+            onCorrection={handleCorrection}
+          />
+        );
+
+      case VIEWS.CORRECTION:
+        return (
+          <CorrectionPhase
+            problems={correctionProblems}
+            existingStars={sessionStars}
+            onComplete={handleCorrectionComplete}
+            onSkip={handleCorrectionSkip}
+          />
+        );
+
+      case VIEWS.MINIGAME:
+        return (
+          <MiniGameScreen
+            onWin={handleMinigameWin}
+            onSkip={handleMinigameSkip}
           />
         );
 
@@ -155,6 +239,13 @@ const SmartickApp: React.FC = () => {
         return <ChildDashboard onStart={goToSession} onParentGate={goToParent} />;
     }
   };
+
+  // ── Onboarding takes priority over all views ──
+  if (showOnboarding) {
+    return (
+      <OnboardingCarousel onComplete={handleOnboardingComplete} />
+    );
+  }
 
   return (
     <div className="smartick-app">

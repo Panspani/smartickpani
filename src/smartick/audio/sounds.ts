@@ -1,16 +1,13 @@
 /**
- * Web Audio API sound synthesis for Smartick Math Sessions.
+ * Sound playback using pre-encoded Base64 WAV samples.
  *
- * All sounds are generated programmatically — no external audio files.
- * AudioContext is created lazily (on first call) and resumed on user gesture.
+ * All 5 sound samples are pre-rendered as WAV bytes at module init,
+ * then converted to Base64 data URLs. On first play, each data URL
+ * is decoded into an AudioBuffer and cached. No real-time synthesis.
  *
  * Frecuencias de referencia (temperamento igual, A4 = 440 Hz):
- *   C5 = 523.25 Hz
- *   D5 = 587.33 Hz
- *   E5 = 659.25 Hz
- *   G3 = 196.00 Hz
- *   G4 = 392.00 Hz
- *   G5 = 783.99 Hz
+ *   C5 = 523.25 Hz   D5 = 587.33 Hz   E5 = 659.25 Hz
+ *   G3 = 196.00 Hz   G4 = 392.00 Hz   G5 = 783.99 Hz
  *   C6 = 1046.50 Hz
  */
 
@@ -21,6 +18,154 @@
 let audioCtx: AudioContext | null = null;
 let _muted = false;
 let _initialized = false;
+
+/** Base64 data URLs for each sample (pre-encoded at module init). */
+const sampleDataUrls = new Map<string, string>();
+
+/** Cached AudioBuffers for each sample (lazy-decoded from data URL). */
+const bufferCache = new Map<string, AudioBuffer>();
+
+// ──────────────────────────────────────────────
+// WAV Generation (8 kHz, 8-bit unsigned PCM)
+// ──────────────────────────────────────────────
+
+interface ToneSpec {
+  freq: number;
+  startMs: number;
+  durMs: number;
+  vol: number; // 0–1
+  type: "sine" | "triangle";
+}
+
+/**
+ * Generate a WAV file as a Uint8Array from a list of tone specifications.
+ * Returns complete WAV bytes (header + PCM data).
+ */
+function generateWav(specs: ToneSpec[], totalMs: number): Uint8Array {
+  const SAMPLE_RATE = 8000;
+  const numSamples = Math.ceil((SAMPLE_RATE * totalMs) / 1000);
+  const headerSize = 44;
+  const buf = new Uint8Array(headerSize + numSamples);
+  const dv = new DataView(buf.buffer);
+
+  // ── RIFF header ───────────────────────────
+  writeStr(dv, 0, "RIFF");
+  dv.setUint32(4, 36 + numSamples, true);
+  writeStr(dv, 8, "WAVE");
+
+  // ── fmt chunk ─────────────────────────────
+  writeStr(dv, 12, "fmt ");
+  dv.setUint32(16, 16, true); // chunk size
+  dv.setUint16(20, 1, true); // PCM
+  dv.setUint16(22, 1, true); // mono
+  dv.setUint32(24, SAMPLE_RATE, true);
+  dv.setUint32(28, SAMPLE_RATE, true); // byte rate
+  dv.setUint16(32, 1, true); // block align
+  dv.setUint16(34, 8, true); // bits per sample
+
+  // ── data chunk ────────────────────────────
+  writeStr(dv, 36, "data");
+  dv.setUint32(40, numSamples, true);
+
+  // ── Generate PCM samples ──────────────────
+  for (let i = 0; i < numSamples; i++) {
+    const tMs = (i / SAMPLE_RATE) * 1000;
+    let sample = 128; // 8-bit zero = 128
+
+    for (const spec of specs) {
+      const localT = tMs - spec.startMs;
+      if (localT < 0 || localT >= spec.durMs) continue;
+
+      const phase = 2 * Math.PI * spec.freq * (localT / 1000);
+      let value: number;
+
+      if (spec.type === "triangle") {
+        value = (2 / Math.PI) * Math.asin(Math.sin(phase));
+      } else {
+        value = Math.sin(phase);
+      }
+
+      // Apply amplitude envelope (quick attack, slow release)
+      const attack = Math.min(1, localT / 0.008);
+      const release = Math.min(1, (spec.durMs - localT) / 0.015);
+      const envelope = attack * release;
+
+      sample += spec.vol * 127 * value * envelope;
+    }
+
+    buf[headerSize + i] = Math.max(0, Math.min(255, Math.round(sample)));
+  }
+
+  return buf;
+}
+
+function writeStr(dv: DataView, offset: number, str: string): void {
+  for (let i = 0; i < str.length; i++) {
+    dv.setUint8(offset + i, str.charCodeAt(i));
+  }
+}
+
+/** Convert a Uint8Array to a Base64 data URL for WAV audio. */
+function wavToDataUrl(wav: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < wav.length; i += chunkSize) {
+    binary += String.fromCharCode(...wav.subarray(i, i + chunkSize));
+  }
+  return "data:audio/wav;base64," + btoa(binary);
+}
+
+// ──────────────────────────────────────────────
+// Sample definitions
+// ──────────────────────────────────────────────
+
+const SAMPLE_DEFS: Record<string, { specs: ToneSpec[]; totalMs: number }> = {
+  correct: {
+    specs: [
+      { freq: 523.25, startMs: 0, durMs: 160, vol: 0.35, type: "sine" },
+      { freq: 659.25, startMs: 80, durMs: 160, vol: 0.35, type: "sine" },
+    ],
+    totalMs: 240,
+  },
+  incorrect: {
+    specs: [
+      { freq: 196.0, startMs: 0, durMs: 300, vol: 0.3, type: "triangle" },
+    ],
+    totalMs: 320,
+  },
+  milestone: {
+    specs: [
+      { freq: 523.25, startMs: 0, durMs: 180, vol: 0.35, type: "sine" },
+      { freq: 659.25, startMs: 120, durMs: 180, vol: 0.35, type: "sine" },
+      { freq: 783.99, startMs: 240, durMs: 220, vol: 0.38, type: "sine" },
+    ],
+    totalMs: 460,
+  },
+  streak: {
+    specs: [
+      { freq: 523.25, startMs: 0, durMs: 120, vol: 0.3, type: "sine" },
+      { freq: 587.33, startMs: 80, durMs: 120, vol: 0.3, type: "sine" },
+      { freq: 659.25, startMs: 160, durMs: 120, vol: 0.32, type: "sine" },
+      { freq: 783.99, startMs: 240, durMs: 160, vol: 0.35, type: "sine" },
+    ],
+    totalMs: 400,
+  },
+  "session-end": {
+    specs: [
+      { freq: 523.25, startMs: 0, durMs: 200, vol: 0.35, type: "sine" },
+      { freq: 659.25, startMs: 120, durMs: 200, vol: 0.35, type: "sine" },
+      { freq: 783.99, startMs: 240, durMs: 220, vol: 0.37, type: "sine" },
+      { freq: 1046.5, startMs: 380, durMs: 350, vol: 0.4, type: "sine" },
+    ],
+    totalMs: 740,
+  },
+};
+
+// ── Pre-render all samples to Base64 data URLs at module init ──
+for (const [name, def] of Object.entries(SAMPLE_DEFS)) {
+  const wav = generateWav(def.specs, def.totalMs);
+  sampleDataUrls.set(name, wavToDataUrl(wav));
+}
 
 // ──────────────────────────────────────────────
 // AudioContext Management
@@ -75,58 +220,71 @@ export function isMuted(): boolean {
 }
 
 // ──────────────────────────────────────────────
-// Internal Helpers
+// Sample initialization & playback
 // ──────────────────────────────────────────────
 
 /**
- * Helper: play a single tone.
- *
- * @param ctx   - AudioContext
- * @param freq  - Frequency in Hz
- * @param dur   - Duration in seconds
- * @param start - Start time (ctx.currentTime + offset)
- * @param type  - Oscillator type (default 'sine')
- * @param vol   - Peak gain (0–1, default 0.25)
+ * Decode a Base64 data URL into an AudioBuffer synchronously.
+ * WAV is simple PCM, so we can do this without async decodeAudioData.
  */
-function tone(
-  ctx: AudioContext,
-  freq: number,
-  dur: number,
-  start: number,
-  type: OscillatorType = "sine",
-  vol: number = 0.25,
-): void {
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
+function decodeDataUrlToAudioBuffer(ctx: AudioContext, dataUrl: string): AudioBuffer {
+  // Decode Base64 to binary string
+  const base64 = dataUrl.split(",")[1];
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
 
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, start);
+  // Parse WAV (skip 44-byte header)
+  const SAMPLE_RATE = 8000;
+  const dataOffset = 44;
+  const numSamples = bytes.length - dataOffset;
+  const audioBuffer = ctx.createBuffer(1, numSamples, SAMPLE_RATE);
+  const channelData = audioBuffer.getChannelData(0);
 
-  // Attack
-  gain.gain.setValueAtTime(0, start);
-  gain.gain.linearRampToValueAtTime(vol, start + 0.01);
-  // Decay / release
-  gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+  for (let i = 0; i < numSamples; i++) {
+    channelData[i] = (bytes[dataOffset + i] - 128) / 128;
+  }
 
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start(start);
-  osc.stop(start + dur + 0.05);
+  return audioBuffer;
 }
 
 /**
- * Ensure the AudioContext is ready. If called without a prior user gesture,
- * it will attempt to create/resume the context (may fail silently in some
- * browsers until a real gesture event).
+ * Ensure a specific sample is decoded and cached.
+ * Returns the AudioBuffer, or null if muted / no context.
  */
-function ensureAudio(): AudioContext | null {
+function ensureSample(name: string): AudioBuffer | null {
   if (_muted) return null;
-  try {
-    return createAudioContext();
-  } catch {
-    return null;
-  }
+
+  // Check cache first
+  const cached = bufferCache.get(name);
+  if (cached) return cached;
+
+  const dataUrl = sampleDataUrls.get(name);
+  if (!dataUrl) return null;
+
+  const ctx = createAudioContext();
+  if (!ctx) return null;
+
+  const audioBuffer = decodeDataUrlToAudioBuffer(ctx, dataUrl);
+  bufferCache.set(name, audioBuffer);
+  return audioBuffer;
+}
+
+/**
+ * Play a pre-encoded sample by name.
+ */
+function playSample(name: string): void {
+  if (_muted) return;
+
+  const buffer = ensureSample(name);
+  if (!buffer || !audioCtx) return;
+
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(audioCtx.destination);
+  source.start();
 }
 
 // ──────────────────────────────────────────────
@@ -134,86 +292,43 @@ function ensureAudio(): AudioContext | null {
 // ──────────────────────────────────────────────
 
 /**
- * Play a rising two-tone chime: C5 → E5, 200 ms total.
+ * Play a rising two-tone chime: C5 → E5.
  * Used for correct answers.
  */
 export function playCorrect(): void {
-  const ctx = ensureAudio();
-  if (!ctx) return;
-
-  const now = ctx.currentTime;
-  // C5 (523.25 Hz) — first tone, 150 ms
-  tone(ctx, 523.25, 0.15, now, "sine", 0.25);
-  // E5 (659.25 Hz) — second tone, starts 100 ms after first
-  tone(ctx, 659.25, 0.15, now + 0.1, "sine", 0.25);
+  playSample("correct");
 }
 
 /**
- * Play a single low tone: G3 (196 Hz), 300 ms.
- * Gentle triangle wave — not punishing.
- * Used for incorrect answers.
+ * Play a single low tone: G3 (196 Hz), gentle triangle.
+ * Used for incorrect answers - soft, not punitive.
  */
 export function playIncorrect(): void {
-  const ctx = ensureAudio();
-  if (!ctx) return;
-
-  const now = ctx.currentTime;
-  // G3 (196 Hz), triangle wave for a softer sound
-  tone(ctx, 196.0, 0.3, now, "triangle", 0.2);
+  playSample("incorrect");
 }
 
 /**
- * Play a three-tone ascending arpeggio: C5 → E5 → G5, 400 ms total.
- * Used for streak milestones, badge earned, and celebratory events.
+ * Play a three-tone ascending arpeggio: C5 → E5 → G5.
+ * Used for streak milestones, badge earned, and celebrations.
  */
 export function playMilestone(): void {
-  const ctx = ensureAudio();
-  if (!ctx) return;
-
-  const now = ctx.currentTime;
-  // C5
-  tone(ctx, 523.25, 0.16, now, "sine", 0.25);
-  // E5 — 120 ms after C5
-  tone(ctx, 659.25, 0.16, now + 0.12, "sine", 0.25);
-  // G5 — 240 ms after C5
-  tone(ctx, 783.99, 0.2, now + 0.24, "sine", 0.28);
+  playSample("milestone");
 }
 
 /**
- * Play a rising series of short tones.
- * Used to acknowledge a growing streak (every correct answer after 3).
+ * Play a rising series of four tones: C5 → D5 → E5 → G5.
+ * Used to acknowledge a growing streak.
  */
 export function playStreak(): void {
-  const ctx = ensureAudio();
-  if (!ctx) return;
-
-  const now = ctx.currentTime;
-  // Four quick rising tones: C5 → D5 → E5 → G5
-  tone(ctx, 523.25, 0.1, now, "sine", 0.2);
-  tone(ctx, 587.33, 0.1, now + 0.08, "sine", 0.2);
-  tone(ctx, 659.25, 0.1, now + 0.16, "sine", 0.22);
-  tone(ctx, 783.99, 0.14, now + 0.24, "sine", 0.25);
+  playSample("streak");
 }
 
 /**
- * Play a triumphant completion fanfare.
+ * Play a triumphant completion fanfare: C5 → E5 → G5 → C6.
  * Used when the session ends successfully.
- *
- * Sequence: C5 → E5 → G5 → C6 (full octave rise), 600 ms total.
  */
 export function playSessionEnd(): void {
-  const ctx = ensureAudio();
-  if (!ctx) return;
-
-  const now = ctx.currentTime;
-  // C5
-  tone(ctx, 523.25, 0.18, now, "sine", 0.25);
-  // E5
-  tone(ctx, 659.25, 0.18, now + 0.12, "sine", 0.25);
-  // G5
-  tone(ctx, 783.99, 0.2, now + 0.24, "sine", 0.27);
-  // C6 — final triumphant note, held longer
-  tone(ctx, 1046.5, 0.35, now + 0.38, "sine", 0.3);
+  playSample("session-end");
 }
 
 // ──────────────────────────────────────────────
@@ -230,4 +345,5 @@ export function disposeAudio(): void {
   }
   audioCtx = null;
   _initialized = false;
+  bufferCache.clear();
 }

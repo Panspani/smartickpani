@@ -128,6 +128,21 @@ export interface UseSessionReturn {
   feedbackMessage: string | null;
   /** The type of the current feedback (for styling / sound routing). */
   feedbackType: "correct" | "incorrect" | "streak" | "milestone" | null;
+  /** Whether audio is currently muted. */
+  isMuted: boolean;
+  /** Toggle mute state on/off. */
+  toggleMute: () => void;
+
+  // ── Interleaved mini-game support ────────────
+
+  /** Pause the session timer (for interleaved mini-game). */
+  pauseTimer: () => void;
+  /** Resume the session timer after pause. */
+  resumeTimer: () => void;
+  /** The current problem's sub-skill ID (for mini-game routing). */
+  currentSubSkillId: SubSkillId | null;
+  /** Last N correct problems for contextual mini-games. */
+  recentProblems: Problem[];
 }
 
 // ──────────────────────────────────────────────
@@ -162,6 +177,13 @@ export function useSession(): UseSessionReturn {
   const seedRef = useRef<number>(0);
   const isActiveRef = useRef(false);
   const finalizeRef = useRef<(() => void) | null>(null);
+
+  // Tracks whether we've already spoken an incorrect message via TTS
+  // in the current session, to avoid repeating on every wrong answer.
+  const incorrectTtsSpokenRef = useRef(false);
+
+  // Last 5 problems (all attempts, for mini-game context)
+  const recentProblemsRef = useRef<Problem[]>([]);
 
   // ── Computed values ───────────────────────────
 
@@ -204,6 +226,7 @@ export function useSession(): UseSessionReturn {
         answer: generated.answer,
         type: generated.type,
         options: generated.options,
+        visualData: generated.visualData,
       };
     },
     [],
@@ -213,6 +236,9 @@ export function useSession(): UseSessionReturn {
 
   const finalizeAndEndSession = useCallback(() => {
     if (!engineRef.current || !isActiveRef.current) return;
+
+    // Stop background music before transitioning to results
+    audio.stopMusic();
 
     isActiveRef.current = false;
     timer.pause();
@@ -400,6 +426,7 @@ export function useSession(): UseSessionReturn {
     setFeedbackType(null);
     setSessionResult(null);
     recentMessagesRef.current = [];
+    incorrectTtsSpokenRef.current = false;
 
     // Generate first problem
     const firstProblem = selectAndGenerateProblem(
@@ -411,10 +438,13 @@ export function useSession(): UseSessionReturn {
     setCurrentProblem(firstProblem);
     problemStartRef.current = Date.now();
 
+    // Start background music
+    audio.startMusic();
+
     // Persist and start timer
     storage.saveSessionState(initial);
     timer.start();
-  }, [storage.skillState, mastery, selectAndGenerateProblem, storage, timer]);
+  }, [storage.skillState, mastery, selectAndGenerateProblem, storage, timer, audio]);
 
   // ── submitAnswer ──────────────────────────────
 
@@ -453,6 +483,12 @@ export function useSession(): UseSessionReturn {
       setStars(newEngine.starsEarned);
       setTotalCorrect((p) => p + (isCorrect ? 1 : 0));
       setTotalAttempts((p) => p + 1);
+
+      // Track recent problems for contextual mini-games
+      recentProblemsRef.current = [
+        ...recentProblemsRef.current,
+        currentProblem,
+      ].slice(-5);
 
       // Play sound
       if (!isCorrect) {
@@ -497,6 +533,16 @@ export function useSession(): UseSessionReturn {
       setFeedbackMessage(msg);
       setFeedbackType(fbType);
       recentMessagesRef.current = [...recentMessagesRef.current, msg].slice(-5);
+
+      // Speak feedback via TTS
+      // Reuses the already-selected `msg` — TTS says what's shown on screen.
+      // Incorrect messages are spoken only once per session to avoid annoyance.
+      if (isCorrect) {
+        audio.speak(msg);
+      } else if (!incorrectTtsSpokenRef.current) {
+        audio.speak(msg);
+        incorrectTtsSpokenRef.current = true;
+      }
 
       // Update phase from elapsed
       const currentPhase = getPhaseForElapsed(timer.elapsed);
@@ -558,6 +604,23 @@ export function useSession(): UseSessionReturn {
     finalizeRef.current?.();
   }, [currentProblem]);
 
+  // ── Timer controls for interleaved mini-games ─
+
+  const pauseTimer = useCallback(() => {
+    timer.pause();
+  }, [timer]);
+
+  const resumeTimer = useCallback(() => {
+    if (isActiveRef.current && !timer.isExpired) {
+      timer.start(timer.elapsed);
+    }
+  }, [timer]);
+
+  // ── Derived values ───────────────────────────
+
+  const currentSubSkillId = currentProblem?.subSkillId ?? null;
+  const recentProblems = recentProblemsRef.current;
+
   // ── Return ────────────────────────────────────
 
   return {
@@ -573,10 +636,16 @@ export function useSession(): UseSessionReturn {
     submitAnswer,
     startSession,
     endSession,
+    pauseTimer,
+    resumeTimer,
+    currentSubSkillId,
+    recentProblems,
     isSessionActive,
     isSessionComplete,
     sessionResult,
     feedbackMessage,
     feedbackType,
+    isMuted: audio.isMuted,
+    toggleMute: audio.toggleMute,
   };
 }

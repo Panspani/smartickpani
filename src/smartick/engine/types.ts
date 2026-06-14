@@ -63,13 +63,22 @@ export const VIEWS = {
   HOME: "dashboard",
   SESSION: "session",
   RESULTS: "results",
+  CORRECTION: "correction",
   PARENT: "parent",
+  MINIGAME: "minigame",
 } as const;
 export type View = (typeof VIEWS)[keyof typeof VIEWS];
 
 export const PROBLEM_TYPES = {
   MULTIPLE_CHOICE: "multiple-choice",
   NUMERIC_INPUT: "numeric-input",
+  CLOCK: "clock",
+  SHAPE: "shape",
+  SOLID: "solid",
+  BALANCE: "balance",
+  OBJECT_GROUP: "object-group",
+  COINS: "coins",
+  MEASUREMENT: "measurement",
 } as const;
 export type ProblemType = (typeof PROBLEM_TYPES)[keyof typeof PROBLEM_TYPES];
 
@@ -107,6 +116,7 @@ export interface Problem {
   type: ProblemType;
   answer: number;             // Correct answer
   options?: number[];         // 4 items for multiple-choice
+  visualData?: VisualData;    // visual/interactive problem data
   tier: Tier;
   phase: Phase;
 }
@@ -219,6 +229,68 @@ export const BADGE_DEFINITIONS = {
   },
 } as const;
 
+// === Visual Data Types (for interactive problems) ===
+
+export interface ClockVisual {
+  hour: number;         // 1–12
+  minute: number;       // 0–59
+  showNumbers: boolean; // show 1-12 around the clock face
+}
+
+export interface ShapeVisual {
+  shapeName: string;    // "triángulo", "cuadrado", etc.
+  sides: number;
+  showLabels: boolean;
+  highlightProperty?: "sides" | "vertices" | "symmetry";
+}
+
+export interface SolidVisual {
+  solidName: string;    // "prisma triangular", "pirámide cuadrangular", "cilindro", etc.
+  vertices: number;
+  edges: number;
+  faces: number;
+}
+
+export interface BalanceVisual {
+  leftLabel: string;    // e.g. "500 g" or "3 kg"
+  rightLabel: string;   // e.g. "? g" or "2 kg"
+  leftValue: number;    // numeric value
+  rightValue: number;   // numeric value (unknown = -1)
+  item: string;         // what's being weighed ("harina", "agua", etc.)
+}
+
+export interface ObjectGroupVisual {
+  groups: number;
+  perGroup: number;
+  icon: string;         // emoji to show: "⭐", "🍎", "📚"
+  highlightIndex?: number;
+}
+
+export interface CoinVisual {
+  coins: Array<{
+    value: number;      // centimos: 1, 2, 5, 10, 20, 50, 100, 200
+    count: number;
+  }>;
+  totalCentimos: number;
+}
+
+export interface MeasurementVisual {
+  kind: "ruler" | "jug" | "scale";
+  value: number;
+  unit: string;         // "cm", "mm", "L", "mL", "kg", "g"
+  maxValue: number;
+  showMarker: boolean;
+}
+
+export type VisualData =
+  | { type: "clock"; data: ClockVisual }
+  | { type: "shape"; data: ShapeVisual }
+  | { type: "solid"; data: SolidVisual }
+  | { type: "balance"; data: BalanceVisual }
+  | { type: "object-group"; data: ObjectGroupVisual }
+  | { type: "coins"; data: CoinVisual }
+  | { type: "measurement"; data: MeasurementVisual };
+
 // === Settings ===
 
 export interface Settings {
@@ -263,6 +335,7 @@ export interface GeneratorResult {
   answer: number;
   type: ProblemType;
   options?: number[];
+  visualData?: VisualData;
 }
 
 export type ProblemGenerator = (context: GeneratorContext) => GeneratorResult;

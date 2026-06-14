@@ -90,7 +90,7 @@ const StreakCalendar: React.FC<StreakCalendarProps> = ({
       {/* Streak counter */}
       {hasActivity && (
         <p className="smartick-streak-calendar__streak">
-          Racha: {streakDays} días 🔥
+          Racha del tesoro: {streakDays} días 🔥
         </p>
       )}
 

@@ -70,11 +70,24 @@ function generadorLongitud(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
+  // Ruler/measurement visual for tier >= 2
+  const visualData = ctx.tier >= 2 ? {
+    type: "measurement" as const,
+    data: {
+      kind: "ruler" as const,
+      value: answer,
+      unit: answer >= 100 ? "cm" : "mm",
+      maxValue: answer * 2,
+      showMarker: true,
+    },
+  } : undefined;
+
   return {
     text,
     answer,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, answer]),
+    visualData,
   };
 }
 
@@ -129,11 +142,24 @@ function generadorCapacidad(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
+  // Jug visual for tier >= 2
+  const visualData = ctx.tier >= 2 ? {
+    type: "measurement" as const,
+    data: {
+      kind: "jug" as const,
+      value: answer >= 1000 ? answer / 1000 : answer,
+      unit: answer >= 1000 ? "L" : "mL",
+      maxValue: Math.max(answer, 1000),
+      showMarker: true,
+    },
+  } : undefined;
+
   return {
     text,
     answer,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, answer]),
+    visualData,
   };
 }
 
@@ -188,11 +214,24 @@ function generadorMasa(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
+  // Scale visual for tier >= 2
+  const visualData = ctx.tier >= 2 ? {
+    type: "measurement" as const,
+    data: {
+      kind: "scale" as const,
+      value: answer >= 1000 ? answer / 1000 : answer,
+      unit: answer >= 1000 ? "kg" : "g",
+      maxValue: Math.max(answer, 1000),
+      showMarker: true,
+    },
+  } : undefined;
+
   return {
     text,
     answer,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, answer]),
+    visualData,
   };
 }
 
@@ -311,6 +350,73 @@ function generadorConvMixtas(ctx: GeneratorContext): GeneratorResult {
 }
 
 // ──────────────────────────────────────────────
+// Skill-09-02: Conversiones entre unidades (longitud)
+// ──────────────────────────────────────────────
+
+function generadorLongConversion(ctx: GeneratorContext): GeneratorResult {
+  const rng = createSeededRng(ctx.seed + ctx.sessionProblemIndex * 191 + 1);
+
+  let text: string;
+  let answer: number;
+
+  switch (ctx.tier) {
+    case 1: {
+      // EASY: km ↔ m
+      const km = rngInt(rng, 1, 5);
+      answer = km * 1000;
+      text = `¿Cuántos metros son ${km} kilómetro${km > 1 ? "s" : ""}?`;
+      break;
+    }
+    case 2: {
+      // MEDIUM: convertir entre dos unidades cualquiera
+      const tipo = rngInt(rng, 0, 2);
+      if (tipo === 0) {
+        // m → km
+        const m = rngPick(rng, [1000, 2000, 4000, 8000]);
+        answer = m / 1000;
+        text = `¿Cuántos kilómetros son ${m} metros?`;
+      } else if (tipo === 1) {
+        // cm → m
+        const cm = rngPick(rng, [300, 600, 900, 1200]);
+        answer = cm / 100;
+        text = `¿Cuántos metros son ${cm} centímetros?`;
+      } else {
+        // mm → cm
+        const mm = rngPick(rng, [50, 80, 120, 200]);
+        answer = mm / 10;
+        text = `¿Cuántos centímetros son ${mm} milímetros?`;
+      }
+      break;
+    }
+    default: {
+      // HARD: cadena de conversiones (m → cm → mm)
+      const m = rngInt(rng, 2, 6);
+      const cmExtra = rngInt(rng, 1, 9) * 10;
+      const totalCm = m * 100 + cmExtra;
+      answer = totalCm * 10;
+      text = `Una tabla mide ${m} m y ${cmExtra} cm. ¿Cuántos milímetros mide en total?`;
+      break;
+    }
+  }
+
+  const errors = [
+    answer + 1,
+    answer - 1,
+    answer * 10,
+    Math.floor(answer / 10),
+  ];
+
+  const options = generateDistractors(answer, 3, rng, errors);
+
+  return {
+    text,
+    answer,
+    type: "multiple-choice",
+    options: rngShuffle(rng, [...options, answer]),
+  };
+}
+
+// ──────────────────────────────────────────────
 // Registry Export
 // ──────────────────────────────────────────────
 
@@ -318,6 +424,7 @@ export const measurementGenerators: Partial<
   Record<SubSkillId, ProblemGenerator>
 > = {
   [SUB_SKILL_IDS.LONG_M_CM_MM]: generadorLongitud,
+  [SUB_SKILL_IDS.LONG_CONVERSIONES]: generadorLongConversion,
   [SUB_SKILL_IDS.CAP_L_ML]: generadorCapacidad,
   [SUB_SKILL_IDS.MASA_G_KG]: generadorMasa,
   [SUB_SKILL_IDS.CAP_MASA_CONVERSIONES]: generadorConvMixtas,

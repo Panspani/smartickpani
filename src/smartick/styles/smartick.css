@@ -7,17 +7,17 @@
 /* ── CSS Variables (scoped to .smartick-app) ──────────────── */
 
 .smartick-app {
-  --smartick-primary: #6C5CE7;
-  --smartick-primary-dark: #5A4BD1;
-  --smartick-primary-light: #A29BFE;
-  --smartick-secondary: #FD79A8;
-  --smartick-secondary-dark: #E86A96;
-  --smartick-accent: #FDCB6E;
+  --smartick-primary: #FF6B35;
+  --smartick-primary-dark: #E55A2B;
+  --smartick-primary-light: #FF8A5C;
+  --smartick-secondary: #FFB347;
+  --smartick-secondary-dark: #E89A2B;
+  --smartick-accent: #FFB347;
   --smartick-success: #00B894;
   --smartick-success-light: #55EFC4;
   --smartick-error: #FF7675;
   --smartick-warning: #FDCB6E;
-  --smartick-bg: #F8F9FF;
+  --smartick-bg: #FFF8F0;
   --smartick-card: #FFFFFF;
   --smartick-text: #2D3436;
   --smartick-text-light: #636E72;
@@ -26,15 +26,15 @@
   --smartick-ring-red: #FF7675;
   --smartick-ring-yellow: #FDCB6E;
   --smartick-ring-green: #00B894;
-  --smartick-ring-star: #6C5CE7;
-  --smartick-ring-bg: #E8E8FF;
-  --smartick-confetti-1: #6C5CE7;
-  --smartick-confetti-2: #FD79A8;
+  --smartick-ring-star: #FF6B35;
+  --smartick-ring-bg: #FFF0E0;
+  --smartick-confetti-1: #FF6B35;
+  --smartick-confetti-2: #FFB347;
   --smartick-confetti-3: #00B894;
   --smartick-confetti-4: #FDCB6E;
-  --smartick-shadow-sm: 0 2px 8px rgba(108, 92, 231, 0.08);
-  --smartick-shadow-md: 0 4px 16px rgba(108, 92, 231, 0.12);
-  --smartick-shadow-lg: 0 8px 32px rgba(108, 92, 231, 0.18);
+  --smartick-shadow-sm: 0 2px 8px rgba(255, 107, 53, 0.08);
+  --smartick-shadow-md: 0 4px 16px rgba(255, 107, 53, 0.12);
+  --smartick-shadow-lg: 0 8px 32px rgba(255, 107, 53, 0.18);
   --smartick-radius-sm: 12px;
   --smartick-radius-md: 16px;
   --smartick-radius-lg: 24px;
@@ -216,7 +216,7 @@
   min-height: 100vh;
   max-width: 480px;
   margin: 0 auto;
-  background: linear-gradient(135deg, var(--smartick-bg) 0%, #F0EEFF 100%);
+  background: linear-gradient(135deg, var(--smartick-bg) 0%, #FFF0E0 100%);
   color: var(--smartick-text);
   font-family: "Baloo 2", "Segoe UI", system-ui, -apple-system, sans-serif;
   font-size: 18px;
@@ -237,7 +237,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
-  background: linear-gradient(145deg, var(--smartick-primary) 0%, #7C6CF0 40%, var(--smartick-secondary) 100%);
+  background: linear-gradient(145deg, var(--smartick-primary) 0%, #E86A2B 40%, var(--smartick-secondary) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -327,7 +327,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--smartick-bg) 0%, #F0EEFF 100%);
+  background: linear-gradient(180deg, var(--smartick-bg) 0%, #FFF0E0 100%);
 }
 
 .smartick-session-screen__top-bar {
@@ -336,7 +336,7 @@
   align-items: center;
   padding: 0.9rem 1.25rem;
   background: var(--smartick-card);
-  border-bottom: 2px solid rgba(108, 92, 231, 0.08);
+  border-bottom: 2px solid rgba(255, 107, 53, 0.08);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -349,6 +349,17 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem 1rem;
+}
+
+.smartick-session-screen__paused {
+  font-size: 1.2rem;
+  animation: smartick-pulse 1.5s ease-in-out infinite;
+  margin-left: 0.35rem;
+}
+
+@keyframes smartick-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -418,7 +429,7 @@
   font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
   color: var(--smartick-text);
   background: var(--smartick-card);
-  border: 3px solid #E8E8FF;
+  border: 3px solid #FFE8D6;
   border-radius: var(--smartick-radius-md);
   cursor: pointer;
   transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
@@ -483,7 +494,7 @@
   font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
   color: var(--smartick-text);
   background: var(--smartick-card);
-  border: 3px solid #E8E8FF;
+  border: 3px solid #FFE8D6;
   border-radius: var(--smartick-radius-md);
   outline: none;
   text-align: center;
@@ -493,7 +504,7 @@
 
 .smartick-numeric-input__field:focus {
   border-color: var(--smartick-primary);
-  box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.12);
+  box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.12);
 }
 
 .smartick-numeric-input__field::placeholder {
@@ -523,13 +534,13 @@
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .smartick-numeric-input__submit:hover:not(:disabled) {
   background: linear-gradient(135deg, var(--smartick-primary-dark), var(--smartick-primary));
   transform: scale(1.06);
-  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
 .smartick-numeric-input__submit:active:not(:disabled) {
@@ -566,7 +577,7 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 2px;
   transition: color 0.3s ease;
-  background: linear-gradient(135deg, #F8F9FF, #F0EEFF);
+  background: linear-gradient(135deg, #FFF8F0, #FFF0E0);
   padding: 0.3rem 0.8rem;
   border-radius: var(--smartick-radius-sm);
 }
@@ -685,12 +696,12 @@
 }
 
 .smartick-feedback-overlay--streak {
-  background: rgba(108, 92, 231, 0.9);
+  background: rgba(255, 107, 53, 0.9);
   backdrop-filter: blur(4px);
 }
 
 .smartick-feedback-overlay--milestone {
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.92), rgba(253, 121, 168, 0.92));
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.92), rgba(255, 179, 71, 0.92));
   backdrop-filter: blur(4px);
 }
 
@@ -733,7 +744,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: 2rem 1rem;
-  background: linear-gradient(180deg, #EDE8FF 0%, var(--smartick-bg) 40%, #F0EEFF 100%);
+  background: linear-gradient(180deg, #FFF0E0 0%, var(--smartick-bg) 40%, #FFF0E0 100%);
   overflow: hidden;
 }
 
@@ -818,7 +829,7 @@
   padding: 1.25rem 1rem;
   border-radius: var(--smartick-radius-md);
   box-shadow: var(--smartick-shadow-sm);
-  border: 1px solid rgba(108, 92, 231, 0.06);
+  border: 1px solid rgba(255, 107, 53, 0.06);
 }
 
 .smartick-results-screen__stat-value {
@@ -868,7 +879,7 @@
   border-radius: var(--smartick-radius-md);
   box-shadow: var(--smartick-shadow-sm);
   min-width: 95px;
-  border: 1px solid rgba(108, 92, 231, 0.06);
+  border: 1px solid rgba(255, 107, 53, 0.06);
 }
 
 .smartick-results-screen__badge--new {
@@ -898,18 +909,97 @@
   border-radius: var(--smartick-radius-full);
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 16px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
   min-height: 54px;
   -webkit-tap-highlight-color: transparent;
 }
 
 .smartick-results-screen__back-button:hover {
   transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 8px 28px rgba(108, 92, 231, 0.4);
+  box-shadow: 0 8px 28px rgba(255, 107, 53, 0.4);
 }
 
 .smartick-results-screen__back-button:active {
   transform: translateY(0) scale(0.97);
+}
+
+/* ── Game prompt ──────────────────────────────── */
+
+.smartick-results-screen__game-prompt {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid rgba(255, 107, 53, 0.08);
+  animation: smartick-fade-in 0.5s ease-out 0.8s both;
+}
+
+.smartick-results-screen__game-question {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  margin-bottom: 0.85rem;
+  text-align: center;
+}
+
+.smartick-results-screen__game-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.smartick-results-screen__play-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.9rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--smartick-primary), var(--smartick-primary-dark));
+  border: none;
+  border-radius: var(--smartick-radius-full);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+  min-height: 50px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.smartick-results-screen__play-button:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+}
+
+.smartick-results-screen__play-button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.smartick-results-screen__skip-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.9rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  color: var(--smartick-text-light);
+  background: transparent;
+  border: 2px solid #D0D0E0;
+  border-radius: var(--smartick-radius-full);
+  cursor: pointer;
+  transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+  min-height: 50px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.smartick-results-screen__skip-button:hover {
+  border-color: var(--smartick-text-light);
+  color: var(--smartick-text);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.smartick-results-screen__skip-button:active {
+  transform: scale(0.97);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -918,9 +1008,10 @@
    ══════════════════════════════════════════════════════════════ */
 
 .smartick-dashboard {
+  position: relative;
   min-height: 100vh;
   padding: 1.5rem 1rem 2rem;
-  background: linear-gradient(180deg, var(--smartick-bg) 0%, #F0EEFF 100%);
+  background: linear-gradient(180deg, var(--smartick-bg) 0%, #FFF0E0 100%);
   animation: smartick-slide-up 0.4s ease-out;
 }
 
@@ -964,12 +1055,12 @@
   font-weight: 700;
   font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
   color: #ffffff;
-  background: linear-gradient(135deg, var(--smartick-primary), #8B7CF0);
+  background: linear-gradient(135deg, var(--smartick-primary), var(--smartick-primary-dark));
   border: none;
   border-radius: var(--smartick-radius-full);
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 20px rgba(108, 92, 231, 0.35);
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.35);
   min-height: 58px;
   letter-spacing: 0.5px;
   -webkit-tap-highlight-color: transparent;
@@ -977,7 +1068,7 @@
 
 .smartick-dashboard__start-button:hover {
   transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 8px 30px rgba(108, 92, 231, 0.45);
+  box-shadow: 0 8px 30px rgba(255, 107, 53, 0.45);
 }
 
 .smartick-dashboard__start-button:active {
@@ -1006,7 +1097,7 @@
   text-align: center;
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 2px solid rgba(108, 92, 231, 0.06);
+  border-top: 2px solid rgba(255, 107, 53, 0.06);
 }
 
 .smartick-dashboard__parent-button {
@@ -1027,7 +1118,7 @@
 .smartick-dashboard__parent-button:hover {
   border-color: var(--smartick-primary-light);
   color: var(--smartick-primary);
-  background: rgba(108, 92, 231, 0.04);
+  background: rgba(255, 107, 53, 0.04);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1151,7 +1242,7 @@
   padding: 1.1rem 1.25rem;
   border-radius: var(--smartick-radius-lg);
   box-shadow: var(--smartick-shadow-sm);
-  border: 1px solid rgba(108, 92, 231, 0.06);
+  border: 1px solid rgba(255, 107, 53, 0.06);
 }
 
 .smartick-streak-calendar__title {
@@ -1190,7 +1281,7 @@
 }
 
 .smartick-streak-calendar__day--inactive {
-  background: #F5F5F8;
+  background: #FFF5EB;
 }
 
 .smartick-streak-calendar__day--today {
@@ -1244,7 +1335,7 @@
   padding: 1.1rem 1.25rem;
   border-radius: var(--smartick-radius-lg);
   box-shadow: var(--smartick-shadow-sm);
-  border: 1px solid rgba(108, 92, 231, 0.06);
+  border: 1px solid rgba(255, 107, 53, 0.06);
 }
 
 .smartick-badge-display__title {
@@ -1282,7 +1373,7 @@
 }
 
 .smartick-badge-display__badge--unearned {
-  background: #FAFAFC;
+  background: #FFF8F0;
   border: 1px solid #F0F0F4;
   opacity: 0.55;
 }
@@ -1370,7 +1461,7 @@
   color: var(--smartick-primary);
   margin-bottom: 1.5rem;
   padding: 0.6rem;
-  background: linear-gradient(135deg, #F0EEFF, #E8E4FF);
+  background: linear-gradient(135deg, #FFF0E0, #FFE8D6);
   border-radius: var(--smartick-radius-md);
 }
 
@@ -1387,8 +1478,8 @@
   font-weight: 700;
   font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
   color: var(--smartick-text);
-  background: #F8F8FF;
-  border: 2px solid #E8E8FF;
+  background: #FFF8F0;
+  border: 2px solid #FFE8D6;
   border-radius: var(--smartick-radius-md);
   outline: none;
   text-align: center;
@@ -1398,7 +1489,7 @@
 
 .smartick-parent-gate__input:focus {
   border-color: var(--smartick-primary);
-  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
 }
 
 .smartick-parent-gate__input--error {
@@ -1419,12 +1510,12 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
   min-height: 50px;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .smartick-parent-gate__submit:hover:not(:disabled) {
   transform: scale(1.04);
-  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
 .smartick-parent-gate__submit:active:not(:disabled) {
@@ -1471,7 +1562,7 @@
 .smartick-parent-view {
   min-height: 100vh;
   padding: 1rem;
-  background: linear-gradient(180deg, var(--smartick-bg) 0%, #F0EEFF 100%);
+  background: linear-gradient(180deg, var(--smartick-bg) 0%, #FFF0E0 100%);
   animation: smartick-fade-in 0.3s ease-out;
 }
 
@@ -1516,7 +1607,7 @@
   padding: 1.35rem;
   margin-bottom: 1rem;
   box-shadow: var(--smartick-shadow-sm);
-  border: 1px solid rgba(108, 92, 231, 0.06);
+  border: 1px solid rgba(255, 107, 53, 0.06);
 }
 
 .smartick-parent-view__card--warning {
@@ -1642,7 +1733,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.8rem;
-  background: #FAFAFF;
+  background: #FFF8F0;
   border-radius: var(--smartick-radius-sm);
   transition: background 0.3s ease;
 }
@@ -1739,7 +1830,7 @@
 }
 
 .smartick-parent-view__table-row:hover {
-  background: #F5F5FF;
+  background: #FFF5EB;
 }
 
 .smartick-parent-view__table-detail td {
@@ -1749,7 +1840,7 @@
 
 .smartick-parent-view__session-detail {
   padding: 0.85rem 1rem;
-  background: #FAFAFF;
+  background: #FFF8F0;
   font-size: 0.85rem;
   line-height: 1.7;
 }
@@ -1813,4 +1904,2390 @@
   font-weight: 500;
   color: var(--smartick-text-light);
   padding: 1.5rem 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Visual Displays — SVG-based problem visuals
+   Clock, Shape, Solid, Balance, ObjectGroup, Coins, Measurement
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-visual-clock,
+.smartick-visual-shape,
+.smartick-visual-solid,
+.smartick-visual-balance,
+.smartick-visual-object-group,
+.smartick-visual-coins,
+.smartick-visual-measurement {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+  min-height: 180px;
+  background: var(--smartick-card);
+  border-radius: var(--smartick-radius-md);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.smartick-visual-clock svg,
+.smartick-visual-shape svg,
+.smartick-visual-solid svg,
+.smartick-visual-balance svg,
+.smartick-visual-object-group svg,
+.smartick-visual-coins svg,
+.smartick-visual-measurement svg {
+  display: block;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ClockDisplay — Analog clock face
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-visual-clock svg {
+  max-width: 200px;
+  height: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SolidDisplay — 3D solid labels
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-solid-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.smartick-solid-content svg {
+  max-width: 180px;
+  height: auto;
+}
+
+.smartick-solid-labels {
+  display: flex;
+  justify-content: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.smartick-solid-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--smartick-text);
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+}
+
+.smartick-solid-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ShapeDisplay — Shape labels
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-visual-shape svg {
+  max-width: 180px;
+  height: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BalanceDisplay — Scale visual
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-visual-balance svg {
+  max-width: 250px;
+  height: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ObjectGroupDisplay — Emoji grid
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-visual-object-group svg {
+  max-width: 220px;
+  height: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CoinDisplay — Euro coins
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-visual-coins svg {
+  max-width: 220px;
+  height: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MeasurementDisplay — Ruler, Jug, Scale
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-visual-measurement svg {
+  max-width: 200px;
+  height: auto;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Adventure Theme — Decorative SVG elements
+   ══════════════════════════════════════════════════════════════ */
+
+/* Decorative compass rose — bottom right corner */
+.smartick-dashboard__deco-compass {
+  position: absolute;
+  bottom: 40px;
+  right: 10px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+  animation: smartick-float 6s ease-in-out infinite;
+}
+
+/* Decorative waves — bottom edge */
+.smartick-dashboard__deco-waves {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Decorative treasure map — top left corner */
+.smartick-dashboard__deco-map {
+  position: absolute;
+  top: 20px;
+  left: 5px;
+  width: 60px;
+  height: 60px;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+  animation: smartick-float 8s ease-in-out infinite reverse;
+}
+
+/* Decorative ship wheel — top right */
+.smartick-dashboard__deco-wheel {
+  position: absolute;
+  top: 10px;
+  right: 5px;
+  width: 55px;
+  height: 55px;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+  animation: smartick-float 7s ease-in-out infinite;
+}
+
+/* Decorative dots pattern overlay */
+.smartick-dashboard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 107, 53, 0.04) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure dashboard content sits above decorations */
+.smartick-dashboard > *:not(.smartick-dashboard__deco-compass):not(.smartick-dashboard__deco-waves):not(.smartick-dashboard__deco-map):not(.smartick-dashboard__deco-wheel) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Mini Confetti — ≤20 particles, ≤1s duration
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-mini-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 101;
+  overflow: hidden;
+}
+
+@keyframes smartick-mini-confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(80px) rotate(360deg) scale(0.4);
+    opacity: 0;
+  }
+}
+
+.smartick-mini-confetti__particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 2px;
+  animation: smartick-mini-confetti-fall 0.9s ease-in forwards;
+  will-change: transform, opacity;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MuteButton — Speaker toggle in top bar
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-mute-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.3s ease, background 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.smartick-mute-button:hover {
+  opacity: 1;
+  background: rgba(255, 107, 53, 0.08);
+}
+
+.smartick-mute-button:active {
+  opacity: 1;
+  background: rgba(255, 107, 53, 0.15);
+}
+
+.smartick-mute-button__icon {
+  width: 22px;
+  height: 22px;
+  color: var(--smartick-text);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Monster Display — Animated mascot companion
+   5 states, inline SVG, CSS-driven animations
+   ══════════════════════════════════════════════════════════════ */
+
+/* Container — fixed aspect ratio, no layout shift */
+.monster-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  will-change: transform;
+}
+
+/* ── Keyframes ────────────────────────────────── */
+
+@keyframes monster-breathe {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.04) translateY(-3px);
+  }
+}
+
+@keyframes monster-bounce {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  30% {
+    transform: scale(1.1) translateY(-12px);
+  }
+  50% {
+    transform: scale(1.05) translateY(-6px);
+  }
+  70% {
+    transform: scale(1) translateY(-2px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes monster-droop {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(6px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes monster-think {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-3px) rotate(-4deg);
+  }
+  75% {
+    transform: translateY(-1px) rotate(2deg);
+  }
+}
+
+@keyframes monster-jump {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-14px) scale(1.08);
+  }
+  60% {
+    transform: translateY(-7px) scale(0.95);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes monster-star-pop {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes monster-wobble {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-6deg);
+  }
+  75% {
+    transform: rotate(6deg);
+  }
+}
+
+/* ── State animations ─────────────────────────── */
+
+.monster-display--idle {
+  animation: monster-breathe 2.5s ease-in-out infinite;
+}
+
+.monster-display--happy {
+  animation: monster-bounce 0.6s ease-out 3;
+}
+
+.monster-display--sad {
+  animation: monster-droop 0.6s ease-out forwards;
+}
+
+.monster-display--thinking {
+  animation: monster-think 1.8s ease-in-out 2;
+}
+
+.monster-display--celebration {
+  animation: monster-jump 0.5s ease-out 5;
+}
+
+/* ── SVG elements ─────────────────────────────── */
+
+.monster-display__star {
+  transform-origin: center;
+}
+
+.monster-display--celebration .monster-display__star {
+  animation: monster-star-pop 0.8s ease-out forwards;
+}
+
+.monster-display--celebration .monster-display__star:nth-child(1) { animation-delay: 0s; }
+.monster-display--celebration .monster-display__star:nth-child(2) { animation-delay: 0.15s; }
+.monster-display--celebration .monster-display__star:nth-child(3) { animation-delay: 0.3s; }
+.monster-display--celebration .monster-display__star:nth-child(4) { animation-delay: 0.45s; }
+
+/* ── Eye states ───────────────────────────────── */
+
+.monster-display__eyes-happy { display: none; }
+.monster-display__eyes-sad { display: none; }
+.monster-display__eyes-thinking { display: none; }
+.monster-display__eyes-celebration { display: none; }
+
+.monster-display--happy .monster-display__eyes-happy { display: block; }
+.monster-display--happy .monster-display__eyes-idle { display: none; }
+.monster-display--sad .monster-display__eyes-sad { display: block; }
+.monster-display--sad .monster-display__eyes-idle { display: none; }
+.monster-display--thinking .monster-display__eyes-thinking { display: block; }
+.monster-display--thinking .monster-display__eyes-idle { display: none; }
+.monster-display--celebration .monster-display__eyes-celebration { display: block; }
+.monster-display--celebration .monster-display__eyes-idle { display: none; }
+
+/* ── Mouth states ─────────────────────────────── */
+
+.monster-display__mouth-happy { display: none; }
+.monster-display__mouth-sad { display: none; }
+.monster-display__mouth-thinking { display: none; }
+.monster-display__mouth-celebration { display: none; }
+
+.monster-display--happy .monster-display__mouth-happy { display: block; }
+.monster-display--happy .monster-display__mouth-idle { display: none; }
+.monster-display--sad .monster-display__mouth-sad { display: block; }
+.monster-display--sad .monster-display__mouth-idle { display: none; }
+.monster-display--thinking .monster-display__mouth-thinking { display: block; }
+.monster-display--thinking .monster-display__mouth-idle { display: none; }
+.monster-display--celebration .monster-display__mouth-celebration { display: block; }
+.monster-display--celebration .monster-display__mouth-idle { display: none; }
+
+/* ── Ear states ───────────────────────────────── */
+
+.monster-display__ears-sad { display: none; }
+.monster-display--sad .monster-display__ears-sad { display: block; }
+.monster-display--sad .monster-display__ears-idle { display: none; }
+
+/* ── Arm states ───────────────────────────────── */
+
+.monster-display__arms-happy { display: none; }
+.monster-display__arms-sad { display: none; }
+.monster-display__arms-thinking { display: none; }
+.monster-display__arms-celebration { display: none; }
+
+.monster-display--happy .monster-display__arms-happy { display: block; }
+.monster-display--happy .monster-display__arms-idle { display: none; }
+.monster-display--sad .monster-display__arms-sad { display: block; }
+.monster-display--sad .monster-display__arms-idle { display: none; }
+.monster-display--thinking .monster-display__arms-thinking { display: block; }
+.monster-display--thinking .monster-display__arms-idle { display: none; }
+.monster-display--celebration .monster-display__arms-celebration { display: block; }
+.monster-display--celebration .monster-display__arms-idle { display: none; }
+
+/* ══════════════════════════════════════════════════════════════
+   Onboarding Carousel — First-launch walkthrough
+   3 full-screen slides with swipe/tap navigation
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(145deg, var(--smartick-primary) 0%, #E86A2B 40%, var(--smartick-secondary) 100%);
+  overflow: hidden;
+}
+
+.smartick-onboarding__slides-wrapper {
+  flex: 1;
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.smartick-onboarding__slide {
+  flex: 0 0 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  color: #ffffff;
+  user-select: none;
+}
+
+.smartick-onboarding__title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  line-height: 1.2;
+}
+
+.smartick-onboarding__text {
+  font-size: 1.15rem;
+  font-weight: 500;
+  opacity: 0.92;
+  max-width: 320px;
+  margin: 0 auto 2rem;
+  line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.smartick-onboarding__mascot-area {
+  margin-bottom: 1.5rem;
+}
+
+.smartick-onboarding__icons {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 2.8rem;
+}
+
+.smartick-onboarding__icon-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-top: 0.3rem;
+}
+
+.smartick-onboarding__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.smartick-onboarding__button {
+  padding: 0.85rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  color: var(--smartick-primary);
+  background: #ffffff;
+  border: none;
+  border-radius: var(--smartick-radius-full);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-height: 50px;
+  min-width: 140px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.smartick-onboarding__button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+
+.smartick-onboarding__button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.smartick-onboarding__button--start {
+  font-size: 1.4rem;
+  padding: 1rem 3rem;
+  color: #ffffff;
+  background: var(--smartick-primary-dark);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.smartick-onboarding__button--back {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  box-shadow: none;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  min-width: 100px;
+}
+
+.smartick-onboarding__button--back:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.smartick-onboarding__dots {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+
+.smartick-onboarding__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: background 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.smartick-onboarding__dot--active {
+  background: #ffffff;
+  transform: scale(1.3);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ClockDisplay Interactive — Tap-to-change hour mode
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-clock-display--interactive {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.smartick-clock-display--interactive:hover {
+  filter: brightness(1.02);
+}
+
+.smartick-clock-display--interactive:active {
+  transform: scale(0.98);
+}
+
+.smartick-clock-display__hour-hand {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.smartick-clock-display__hour-label {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--smartick-primary);
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.smartick-clock-display__feedback {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 0.3rem;
+  animation: smartick-bounce 0.3s ease-out;
+}
+
+.smartick-clock-display__feedback--correct {
+  color: var(--smartick-success);
+}
+
+.smartick-clock-display__feedback--incorrect {
+  color: var(--smartick-error);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CorrectionPhase — Post-session problem retry
+   Positive framing, star rewards, progress bar
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-correction-phase {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--smartick-bg) 0%, #FFF0E0 100%);
+  padding: 1.25rem;
+  animation: smartick-slide-up 0.4s ease-out;
+}
+
+/* ── Header ────────────────────────────────── */
+
+.smartick-correction-phase__header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.smartick-correction-phase__header-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.smartick-correction-phase__title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--smartick-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.smartick-correction-phase__skip-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 2px solid #D0D0E0;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--smartick-text-light);
+  transition: border-color 0.3s ease, color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.smartick-correction-phase__skip-button:hover {
+  border-color: var(--smartick-text-light);
+  color: var(--smartick-text);
+}
+
+.smartick-correction-phase__skip-button:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+/* ── Progress bar ──────────────────────────── */
+
+.smartick-correction-phase__progress {
+  margin-top: 0.75rem;
+}
+
+.smartick-correction-phase__progress-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--smartick-text-light);
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.smartick-correction-phase__progress-bar {
+  height: 6px;
+  background: #FFE8D6;
+  border-radius: var(--smartick-radius-full);
+  overflow: hidden;
+}
+
+.smartick-correction-phase__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--smartick-primary), var(--smartick-secondary));
+  border-radius: var(--smartick-radius-full);
+  transition: width 0.4s ease;
+}
+
+/* ── Stars bar ─────────────────────────────── */
+
+.smartick-correction-phase__stars-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: rgba(253, 203, 110, 0.12);
+  border-radius: var(--smartick-radius-full);
+  align-self: center;
+}
+
+.smartick-correction-phase__stars-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--smartick-text-light);
+}
+
+.smartick-correction-phase__stars-count {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--smartick-star-gold);
+}
+
+/* ── Mascot ────────────────────────────────── */
+
+.smartick-correction-phase__mascot {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Problem area ──────────────────────────── */
+
+.smartick-correction-phase__problem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Feedback overlay ──────────────────────── */
+
+.smartick-correction-phase__feedback {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: smartick-fade-in 0.3s ease-out;
+}
+
+.smartick-correction-phase__feedback--correct {
+  background: rgba(0, 184, 148, 0.92);
+  backdrop-filter: blur(4px);
+}
+
+.smartick-correction-phase__feedback--incorrect {
+  background: rgba(253, 203, 110, 0.92);
+  backdrop-filter: blur(4px);
+}
+
+.smartick-correction-phase__feedback-text {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  padding: 2rem;
+  animation: smartick-slide-up 0.4s ease-out;
+}
+
+.smartick-correction-phase__feedback-star {
+  display: inline-block;
+  animation: smartick-star-burst 1.2s ease-out forwards;
+}
+
+.smartick-correction-phase__correct-answer {
+  font-size: 2.4rem;
+  color: #ffffff;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* ── Summary screen ────────────────────────── */
+
+.smartick-correction-phase__summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
+  animation: smartick-fade-in 0.5s ease-out;
+}
+
+.smartick-correction-phase__summary-mascot {
+  margin-bottom: 1rem;
+}
+
+.smartick-correction-phase__summary-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--smartick-text);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.smartick-correction-phase__summary-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--smartick-text-light);
+  margin-bottom: 1.5rem;
+}
+
+/* Star earned animation on summary */
+.smartick-correction-phase__summary-stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.smartick-correction-phase__star-earned {
+  font-size: 2.5rem;
+  display: inline-block;
+  animation: smartick-star-appear 0.6s ease-out both;
+}
+
+/* Continue button */
+.smartick-correction-phase__continue-button {
+  display: inline-block;
+  padding: 1rem 3rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--smartick-primary), var(--smartick-primary-dark));
+  border: none;
+  border-radius: var(--smartick-radius-full);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.35);
+  min-height: 54px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.smartick-correction-phase__continue-button:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 30px rgba(255, 107, 53, 0.45);
+}
+
+.smartick-correction-phase__continue-button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Correction button in ResultsScreen
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-results-screen__correction-prompt {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(253, 203, 110, 0.08);
+  border-radius: var(--smartick-radius-md);
+  border: 2px solid rgba(253, 203, 110, 0.2);
+  animation: smartick-fade-in 0.5s ease-out 0.6s both;
+}
+
+.smartick-results-screen__correction-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--smartick-text);
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+
+.smartick-results-screen__correction-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.85rem 1.8rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  color: var(--smartick-primary);
+  background: transparent;
+  border: 2px solid var(--smartick-primary);
+  border-radius: var(--smartick-radius-full);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
+  min-height: 50px;
+  -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  justify-content: center;
+}
+
+.smartick-results-screen__correction-button:hover {
+  background: var(--smartick-primary);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+}
+
+.smartick-results-screen__correction-button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MiniGameScreen — Post-session Memory card game
+   Grilla 4×4 (default), 4×3 en ≤360px
+   Flip 3D, match glow, win celebration
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-minigame {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--smartick-bg) 0%, #FFF0E0 100%);
+  padding: 1rem;
+  animation: smartick-slide-up 0.4s ease-out;
+}
+
+/* ── Header ──────────────────────────────────── */
+
+.smartick-minigame__header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.smartick-minigame__header-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.smartick-minigame__title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--smartick-primary);
+  margin: 0;
+}
+
+.smartick-minigame__skip-button {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 2px solid #D0D0E0;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--smartick-text-light);
+  transition: border-color 0.3s ease, color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.smartick-minigame__skip-button:hover {
+  border-color: var(--smartick-text-light);
+  color: var(--smartick-text);
+}
+
+.smartick-minigame__skip-button:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.smartick-minigame__stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.smartick-minigame__stat {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--smartick-text-light);
+}
+
+.smartick-minigame__stat strong {
+  color: var(--smartick-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Card grid ───────────────────────────────── */
+
+.smartick-minigame__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto 1.5rem;
+  padding: 0 0.25rem;
+}
+
+/* ── Card ─────────────────────────────────────── */
+
+.smartick-minigame__card {
+  aspect-ratio: 1;
+  perspective: 600px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.smartick-minigame__card:focus-visible {
+  outline: 3px solid var(--smartick-primary);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+.smartick-minigame__card:disabled {
+  cursor: default;
+}
+
+.smartick-minigame__card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  border-radius: 12px;
+}
+
+.smartick-minigame__card--flipped .smartick-minigame__card-inner {
+  transform: rotateY(180deg);
+}
+
+.smartick-minigame__card-front,
+.smartick-minigame__card-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 12px;
+  border: 2px solid #FFE8D6;
+}
+
+.smartick-minigame__card-front {
+  background: linear-gradient(145deg, var(--smartick-primary) 0%, var(--smartick-primary-dark) 100%);
+  z-index: 2;
+}
+
+.smartick-minigame__card-back {
+  background: var(--smartick-card);
+  transform: rotateY(180deg);
+  z-index: 1;
+  border-color: var(--smartick-primary-light);
+}
+
+.smartick-minigame__card-question {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.smartick-minigame__card-value {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+/* ── Card states ──────────────────────────────── */
+
+/* Matched — green glow, stays visible */
+.smartick-minigame__card--matched .smartick-minigame__card-inner {
+  transform: rotateY(180deg);
+}
+
+.smartick-minigame__card--matched .smartick-minigame__card-back {
+  border-color: var(--smartick-success);
+  box-shadow: 0 0 12px rgba(0, 184, 148, 0.35), 0 0 24px rgba(0, 184, 148, 0.15);
+  animation: card-glow 1.5s ease-in-out 2;
+}
+
+/* Mismatch — quick shake */
+.smartick-minigame__card--mismatch .smartick-minigame__card-back {
+  border-color: var(--smartick-error);
+  animation: card-shake 0.4s ease-out;
+}
+
+/* ── Card keyframes ───────────────────────────── */
+
+@keyframes card-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 184, 148, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 184, 148, 0.5), 0 0 40px rgba(0, 184, 148, 0.2);
+  }
+}
+
+@keyframes card-shake {
+  0%, 100% {
+    transform: rotateY(180deg) translateX(0);
+  }
+  25% {
+    transform: rotateY(180deg) translateX(-4px);
+  }
+  75% {
+    transform: rotateY(180deg) translateX(4px);
+  }
+}
+
+/* ── Mascot ───────────────────────────────────── */
+
+.smartick-minigame__mascot {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-bottom: 0.5rem;
+}
+
+/* ── Win overlay ──────────────────────────────── */
+
+.smartick-minigame__win-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  animation: smartick-fade-in 0.4s ease-out;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+/* Confetti particles */
+.smartick-minigame__confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+@keyframes mini-game-confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(50vh) rotate(360deg) scale(1.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.smartick-minigame__confetti-particle {
+  position: absolute;
+  top: -10px;
+  border-radius: 3px;
+  animation: mini-game-confetti-fall 2s ease-in forwards;
+  will-change: transform, opacity;
+}
+
+/* Win banner */
+.smartick-minigame__win-banner {
+  text-align: center;
+  animation: banner-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  z-index: 1;
+}
+
+.smartick-minigame__win-text {
+  display: block;
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin-bottom: 0.5rem;
+}
+
+.smartick-minigame__win-stars {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--smartick-star-gold);
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  animation: star-burst 1s ease-out forwards;
+}
+
+@keyframes star-burst {
+  0% {
+    transform: scale(0.3) rotate(-20deg);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.4) rotate(10deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes banner-bounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Win mascot */
+.smartick-minigame__win-mascot {
+  z-index: 1;
+  animation: smartick-fade-in 0.6s ease-out 0.3s both;
+}
+
+/* Back button */
+.smartick-minigame__back-button {
+  display: inline-block;
+  padding: 1rem 2.8rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--smartick-primary), var(--smartick-primary-dark));
+  border: none;
+  border-radius: var(--smartick-radius-full);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+  min-height: 54px;
+  z-index: 1;
+  animation: smartick-fade-in 0.4s ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.smartick-minigame__back-button:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 30px rgba(255, 107, 53, 0.5);
+}
+
+.smartick-minigame__back-button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ── Responsive: 4×3 on very small screens ────── */
+
+@media (max-width: 360px) {
+  .smartick-minigame {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .smartick-minigame__grid {
+    gap: 0.4rem;
+    max-width: 100%;
+  }
+
+  .smartick-minigame__title {
+    font-size: 1.3rem;
+  }
+
+  .smartick-minigame__card-value {
+    font-size: 1.5rem;
+  }
+
+  .smartick-minigame__card-question {
+    font-size: 1.4rem;
+  }
+
+  .smartick-minigame__win-text {
+    font-size: 2.2rem;
+  }
+
+  .smartick-minigame__win-stars {
+    font-size: 1.8rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LaberintoGame — Number maze grid cells
+   Dynamic grid (3×3, 4×4, 5×5), number cells, state feedback
+   ══════════════════════════════════════════════════════════════ */
+
+/* Grid cell (shared with memory grid but extended for laberinto) */
+.smartick-minigame__cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--smartick-card);
+  border: 3px solid #FFE8D6;
+  border-radius: var(--smartick-radius-md);
+  cursor: pointer;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--smartick-text);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  padding: 0;
+  min-height: 0;
+}
+
+.smartick-minigame__cell:hover:not(:disabled) {
+  transform: scale(1.04);
+  border-color: var(--smartick-primary-light);
+  box-shadow: var(--smartick-shadow-sm);
+}
+
+.smartick-minigame__cell:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.smartick-minigame__cell:disabled {
+  cursor: default;
+}
+
+.smartick-minigame__cell:focus-visible {
+  outline: 3px solid var(--smartick-primary);
+  outline-offset: 2px;
+}
+
+/* Current position — green glow */
+.smartick-minigame__cell--current {
+  background: linear-gradient(135deg, #E8F8F5 0%, #D4F5EC 100%);
+  border-color: var(--smartick-success);
+  color: #00856A;
+  box-shadow: 0 0 12px rgba(0, 184, 148, 0.3), 0 0 24px rgba(0, 184, 148, 0.12);
+  animation: smartick-bounce 0.4s ease-out;
+}
+
+/* Visited cells — subtle dim */
+.smartick-minigame__cell--visited {
+  opacity: 0.45;
+  background: #FFF5EB;
+  border-color: #E8E0D8;
+}
+
+/* Error feedback — red flash */
+.smartick-minigame__cell--error {
+  background: linear-gradient(135deg, #FFF0EE 0%, #FFE4E0 100%);
+  border-color: var(--smartick-error);
+  color: #D63031;
+  animation: smartick-shake 0.3s ease-out;
+  box-shadow: 0 0 8px rgba(255, 118, 117, 0.4);
+}
+
+/* Cell text */
+.smartick-minigame__cell-text {
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Responsive: smaller cells on narrow screens */
+@media (max-width: 360px) {
+  .smartick-minigame__cell {
+    font-size: 1.4rem;
+    border-width: 2px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PuzzleGame — 3×3 sliding tile puzzle
+   Tile grid, slide transitions, empty slot, hint highlight
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-minigame__puzzle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  max-width: 360px;
+  width: 100%;
+  margin: 0 auto 1.5rem;
+  padding: 0 0.25rem;
+}
+
+/* Tile — numbered square */
+.smartick-minigame__puzzle-tile {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, var(--smartick-primary) 0%, var(--smartick-primary-dark) 100%);
+  border: none;
+  border-radius: var(--smartick-radius-md);
+  cursor: pointer;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(255, 107, 53, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  padding: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.smartick-minigame__puzzle-tile:hover:not(:disabled) {
+  transform: scale(1.04);
+  box-shadow: 0 5px 16px rgba(255, 107, 53, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.smartick-minigame__puzzle-tile:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.smartick-minigame__puzzle-tile:disabled {
+  cursor: default;
+}
+
+.smartick-minigame__puzzle-tile:focus-visible {
+  outline: 3px solid var(--smartick-success);
+  outline-offset: 2px;
+}
+
+/* Tile slide animation */
+.smartick-minigame__puzzle-tile--sliding {
+  animation: smartick-bounce 0.2s ease-out;
+}
+
+/* Tile text */
+.smartick-minigame__puzzle-tile-text {
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Empty slot */
+.smartick-minigame__puzzle-empty {
+  aspect-ratio: 1;
+  background: #FFF0E0;
+  border-radius: var(--smartick-radius-md);
+  border: 2px dashed #E0D0C0;
+}
+
+/* Hint highlight — glowing tile */
+.smartick-minigame__puzzle-tile--hint {
+  background: linear-gradient(145deg, var(--smartick-success) 0%, #00A07A 100%);
+  box-shadow: 0 0 16px rgba(0, 184, 148, 0.5), 0 0 32px rgba(0, 184, 148, 0.2);
+  animation: smartick-pulse-green 0.8s ease-in-out infinite;
+  transform: scale(1.06);
+}
+
+@keyframes smartick-pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(0, 184, 148, 0.4);
+    transform: scale(1.04);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(0, 184, 148, 0.6), 0 0 40px rgba(0, 184, 148, 0.25);
+    transform: scale(1.08);
+  }
+}
+
+/* Hint button area */
+.smartick-minigame__hint-area {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  animation: smartick-fade-in 0.3s ease-out;
+}
+
+.smartick-minigame__hint-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.8rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: "Baloo 2", "Segoe UI", system-ui, sans-serif;
+  color: var(--smartick-text);
+  background: var(--smartick-card);
+  border: 2px solid var(--smartick-success);
+  border-radius: var(--smartick-radius-full);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 48px;
+}
+
+.smartick-minigame__hint-button:hover {
+  background: linear-gradient(135deg, #E8F8F5, #D4F5EC);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.2);
+}
+
+.smartick-minigame__hint-button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Win subtext (for puzzle <30 moves bonus) */
+.smartick-minigame__win-subtext {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--smartick-success-light);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-top: 0.3rem;
+  animation: smartick-fade-in 0.5s ease-out 0.3s both;
+}
+
+/* Responsive: smaller puzzle on narrow screens */
+@media (max-width: 360px) {
+  .smartick-minigame__puzzle-grid {
+    gap: 0.35rem;
+    max-width: 100%;
+  }
+
+  .smartick-minigame__puzzle-tile {
+    font-size: 1.5rem;
+  }
+
+  .smartick-minigame__hint-button {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.4rem;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Interleaved mini-games (embedded inside SessionScreen)
+   ══════════════════════════════════════════════════════════════ */
+
+.smartick-interleaved-game {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ── Balanza (balance scale) ──────────────────── */
+
+.smartick-balanza {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.smartick-balanza__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.smartick-balanza__title {
+  font-size: 1.2rem;
+  margin: 0;
+  color: var(--smartick-primary);
+}
+
+.smartick-balanza__skip {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0.25rem;
+}
+
+.smartick-balanza__skip:hover {
+  opacity: 1;
+}
+
+.smartick-balanza__target {
+  font-size: 1.4rem;
+  color: var(--smartick-text);
+  margin: 0;
+}
+
+.smartick-balanza__target strong {
+  color: var(--smartick-primary);
+  font-size: 1.6rem;
+}
+
+/* Scale visual */
+.smartick-balanza__scale {
+  width: 260px;
+  height: 130px;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.smartick-balanza__beam {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  transform-origin: center 15px;
+  transition: transform 0.4s ease;
+  width: 100%;
+}
+
+.smartick-balanza__pan {
+  width: 80px;
+  height: 60px;
+  border: 3px solid var(--smartick-text);
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--smartick-card);
+}
+
+.smartick-balanza__pan--left {
+  border-color: var(--smartick-secondary);
+}
+
+.smartick-balanza__pan--right {
+  border-color: var(--smartick-primary);
+}
+
+.smartick-balanza__pan-label {
+  font-size: 0.7rem;
+  word-break: break-word;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 74px;
+}
+
+.smartick-balanza__fulcrum {
+  width: 8px;
+  height: 30px;
+  background: var(--smartick-text);
+  border-radius: 4px 4px 0 0;
+  margin: 0 6px;
+}
+
+/* Status messages */
+.smartick-balanza__status {
+  min-height: 1.6rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.smartick-balanza__win {
+  color: var(--smartick-success);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.smartick-balanza__balancing {
+  color: var(--smartick-warning);
+}
+
+.smartick-balanza__over {
+  color: var(--smartick-error);
+}
+
+.smartick-balanza__under {
+  color: var(--smartick-primary);
+}
+
+.smartick-balanza__hint {
+  color: var(--smartick-text-light);
+  font-style: italic;
+}
+
+/* Weight buttons */
+.smartick-balanza__weights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.smartick-balanza__weight-btn {
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--smartick-primary);
+  background: var(--smartick-card);
+  color: var(--smartick-primary);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.smartick-balanza__weight-btn:hover {
+  background: var(--smartick-primary);
+  color: white;
+}
+
+.smartick-balanza__clear {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--smartick-text-light);
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--smartick-text-light);
+}
+
+/* ── Botellas (measuring cylinder) ────────────── */
+
+.smartick-botellas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.smartick-botellas__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.smartick-botellas__title {
+  font-size: 1.2rem;
+  margin: 0;
+  color: var(--smartick-primary);
+}
+
+.smartick-botellas__skip {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0.25rem;
+}
+
+.smartick-botellas__skip:hover {
+  opacity: 1;
+}
+
+.smartick-botellas__target {
+  font-size: 1.4rem;
+  color: var(--smartick-text);
+  margin: 0;
+}
+
+.smartick-botellas__target strong {
+  color: var(--smartick-primary);
+  font-size: 1.6rem;
+}
+
+/* Cylinder */
+.smartick-botellas__cylinder-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.smartick-botellas__cylinder {
+  width: 100px;
+  height: 200px;
+  border: 3px solid var(--smartick-text);
+  border-radius: 0 0 20px 20px;
+  position: relative;
+  background: #f8f9fa;
+  overflow: hidden;
+  border-top: none;
+}
+
+/* Graduation marks */
+.smartick-botellas__mark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed var(--smartick-text-light);
+  opacity: 0.4;
+}
+
+.smartick-botellas__mark-label {
+  position: absolute;
+  left: -2.8rem;
+  top: -0.45rem;
+  font-size: 0.6rem;
+  color: var(--smartick-text-light);
+  width: 2.5rem;
+  text-align: right;
+}
+
+/* Water fill */
+.smartick-botellas__fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, #3498db, #74b9ff);
+  transition: height 0.3s ease;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.smartick-botellas__fill-label {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Target arrow */
+.smartick-botellas__target-arrow {
+  position: absolute;
+  right: -1.8rem;
+  font-size: 1.2rem;
+  color: var(--smartick-error);
+  transform: translateY(50%);
+}
+
+/* Status */
+.smartick-botellas__status {
+  min-height: 1.6rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.smartick-botellas__win {
+  color: var(--smartick-success);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.smartick-botellas__exact {
+  color: var(--smartick-success);
+}
+
+.smartick-botellas__over {
+  color: var(--smartick-error);
+}
+
+.smartick-botellas__under {
+  color: var(--smartick-primary);
+}
+
+.smartick-botellas__hint {
+  color: var(--smartick-text-light);
+  font-style: italic;
+}
+
+/* Controls */
+.smartick-botellas__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.smartick-botellas__control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.smartick-botellas__control-label {
+  font-size: 0.8rem;
+  color: var(--smartick-text-light);
+  font-weight: 600;
+}
+
+.smartick-botellas__buttons {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.smartick-botellas__btn {
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid;
+  transition: all 0.15s;
+}
+
+.smartick-botellas__btn--fill {
+  border-color: #3498db;
+  color: #3498db;
+  background: white;
+}
+
+.smartick-botellas__btn--fill:hover:not(:disabled) {
+  background: #3498db;
+  color: white;
+}
+
+.smartick-botellas__btn--drain {
+  border-color: var(--smartick-error);
+  color: var(--smartick-error);
+  background: white;
+}
+
+.smartick-botellas__btn--drain:hover:not(:disabled) {
+  background: var(--smartick-error);
+  color: white;
+}
+
+.smartick-botellas__btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.smartick-botellas__reset {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--smartick-text-light);
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--smartick-text-light);
+}
+
+/* ── Reloj (clock) ────────────────────────────── */
+
+.smartick-reloj {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.smartick-reloj__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.smartick-reloj__title {
+  font-size: 1.2rem;
+  margin: 0;
+  color: var(--smartick-primary);
+}
+
+.smartick-reloj__skip {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0.25rem;
+}
+
+.smartick-reloj__skip:hover {
+  opacity: 1;
+}
+
+.smartick-reloj__target {
+  font-size: 1.4rem;
+  color: var(--smartick-text);
+  margin: 0;
+}
+
+.smartick-reloj__target strong {
+  color: var(--smartick-primary);
+  font-size: 1.6rem;
+}
+
+/* Clock face */
+.smartick-reloj__face {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 4px solid var(--smartick-text);
+  position: relative;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.smartick-reloj__number {
+  position: absolute;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--smartick-text);
+  transform: translate(-50%, -50%);
+}
+
+.smartick-reloj__hand {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  transform-origin: bottom center;
+  border-radius: 4px;
+}
+
+.smartick-reloj__hand--hour {
+  width: 4px;
+  height: 45px;
+  margin-left: -2px;
+  background: var(--smartick-text);
+  z-index: 2;
+}
+
+.smartick-reloj__hand--minute {
+  width: 3px;
+  height: 65px;
+  margin-left: -1.5px;
+  background: var(--smartick-primary);
+  z-index: 1;
+}
+
+.smartick-reloj__center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  background: var(--smartick-primary);
+  border-radius: 50%;
+  z-index: 3;
+}
+
+/* Digital display */
+.smartick-reloj__digital {
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  color: var(--smartick-primary);
+  letter-spacing: 0.2em;
+}
+
+/* Status */
+.smartick-reloj__status {
+  min-height: 1.6rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.smartick-reloj__win {
+  color: var(--smartick-success);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.smartick-reloj__match {
+  color: var(--smartick-success);
+}
+
+.smartick-reloj__hint {
+  color: var(--smartick-text-light);
+  font-style: italic;
+}
+
+/* Controls */
+.smartick-reloj__controls {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.smartick-reloj__control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.smartick-reloj__control-label {
+  font-size: 0.8rem;
+  color: var(--smartick-text-light);
+  font-weight: 600;
+}
+
+.smartick-reloj__buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.smartick-reloj__btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--smartick-primary);
+  background: white;
+  color: var(--smartick-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.smartick-reloj__btn:hover {
+  background: var(--smartick-primary);
+  color: white;
+}
+
+.smartick-reloj__value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  min-width: 2ch;
+  text-align: center;
+}
+
+/* ── Tienda (shop / coins) ─────────────────────── */
+
+.smartick-tienda {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.smartick-tienda__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.smartick-tienda__title {
+  font-size: 1.2rem;
+  margin: 0;
+  color: var(--smartick-primary);
+}
+
+.smartick-tienda__skip {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0.25rem;
+}
+
+.smartick-tienda__skip:hover {
+  opacity: 1;
+}
+
+/* Product display */
+.smartick-tienda__product {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--smartick-card);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.smartick-tienda__product-emoji {
+  font-size: 2rem;
+}
+
+.smartick-tienda__product-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--smartick-text);
+}
+
+.smartick-tienda__product-price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--smartick-primary);
+}
+
+/* Payment area */
+.smartick-tienda__payment {
+  width: 100%;
+  max-width: 320px;
+  padding: 0.6rem;
+  border: 2px dashed var(--smartick-text-light);
+  border-radius: 12px;
+  min-height: 3rem;
+}
+
+.smartick-tienda__payment-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--smartick-text-light);
+  margin-bottom: 0.3rem;
+}
+
+.smartick-tienda__payment-total {
+  font-weight: 700;
+  color: var(--smartick-text);
+}
+
+.smartick-tienda__payment-coins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  min-height: 2rem;
+}
+
+.smartick-tienda__payment-empty {
+  color: var(--smartick-text-light);
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.smartick-tienda__coin-display {
+  font-size: 1.5rem;
+}
+
+/* Status */
+.smartick-tienda__status {
+  min-height: 1.6rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.smartick-tienda__win {
+  color: var(--smartick-success);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.smartick-tienda__exact {
+  color: var(--smartick-success);
+}
+
+.smartick-tienda__over {
+  color: var(--smartick-error);
+}
+
+.smartick-tienda__remaining {
+  color: var(--smartick-primary);
+}
+
+.smartick-tienda__hint {
+  color: var(--smartick-text-light);
+  font-style: italic;
+}
+
+/* Coin buttons */
+.smartick-tienda__coins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  max-width: 320px;
+}
+
+.smartick-tienda__coin-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid var(--smartick-secondary);
+  background: var(--smartick-card);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-width: 50px;
+}
+
+.smartick-tienda__coin-btn:hover:not(:disabled) {
+  background: var(--smartick-secondary);
+  border-color: var(--smartick-secondary-dark);
+}
+
+.smartick-tienda__coin-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.smartick-tienda__coin-emoji {
+  font-size: 1.4rem;
+}
+
+.smartick-tienda__coin-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--smartick-text);
+}
+
+/* Actions */
+.smartick-tienda__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.smartick-tienda__undo,
+.smartick-tienda__reset {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--smartick-text-light);
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--smartick-text-light);
 }

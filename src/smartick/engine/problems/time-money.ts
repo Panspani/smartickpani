@@ -59,11 +59,49 @@ function generadorTiempoReloj(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
+  // Clock visual: hour hand points to the hour, minute hand to the minute
+  const visualData = {
+    type: "clock" as const,
+    data: {
+      hour: 0,
+      minute: 0,
+      showNumbers: true,
+    },
+  };
+
+  // Infer hour/minute from the answer (minute hand position) and context
+  // For tier 1: hour is random, minute=0 (en punto)
+  // For tier 2-3: use the generated time
+  if (ctx.tier === 1) {
+    // Reconstruct hour from the text (en punto)
+    const hourMatch = text.match(/(\d+):00/);
+    if (hourMatch) {
+      visualData.data.hour = parseInt(hourMatch[1], 10) % 12 || 12;
+      visualData.data.minute = 0;
+    } else {
+      visualData.data.hour = 3;
+      visualData.data.minute = 0;
+    }
+  } else if (ctx.tier === 2) {
+    const hourMatch = text.match(/(\d+):(\d+)/);
+    if (hourMatch) {
+      visualData.data.hour = parseInt(hourMatch[1], 10) % 12 || 12;
+      visualData.data.minute = parseInt(hourMatch[2], 10);
+    }
+  } else {
+    const hourMatch = text.match(/(\d+):(\d+)/);
+    if (hourMatch) {
+      visualData.data.hour = parseInt(hourMatch[1], 10) % 12 || 12;
+      visualData.data.minute = parseInt(hourMatch[2], 10);
+    }
+  }
+
   return {
     text,
     answer,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, answer]),
+    visualData,
   };
 }
 
@@ -189,11 +227,33 @@ function generadorDineroEuros(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
+  // Coin visual: show the relevant coins
+  const coins: Array<{ value: number; count: number }> = [];
+  if (ctx.tier === 1) {
+    // 1€ or 2€ coins
+    const monedaValor = text.includes("1 €") ? 100 : 200;
+    const cantidad = text.match(/(\d+) moneda/);
+    if (cantidad) {
+      coins.push({ value: monedaValor, count: parseInt(cantidad[1], 10) });
+    }
+  } else if (ctx.tier === 2) {
+    coins.push({ value: 100, count: 0 });
+    coins.push({ value: 50, count: 0 });
+    // Extract from text
+    const eurMatch = text.match(/(\d+) moneda.*1 €/);
+    const c50Match = text.match(/(\d+) moneda.*50 c/);
+    if (eurMatch) coins[0] = { value: 100, count: parseInt(eurMatch[1], 10) };
+    if (c50Match) coins[1] = { value: 50, count: parseInt(c50Match[1], 10) };
+  }
+
   return {
     text,
     answer,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, answer]),
+    visualData: coins.length > 0
+      ? { type: "coins" as const, data: { coins, totalCentimos: answer } }
+      : undefined,
   };
 }
 

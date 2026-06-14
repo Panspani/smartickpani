@@ -10,10 +10,21 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "../hooks/useSession";
+import { gameTypeForSubSkill, GAME_TYPES } from "../engine/gameRouter";
+import type { ContextualGameType } from "../engine/gameRouter";
 import TimerDisplay from "./TimerDisplay";
 import StarCounter from "./StarCounter";
 import ProblemView from "./ProblemView";
 import FeedbackOverlay from "./FeedbackOverlay";
+import MuteButton from "./MuteButton";
+import MonsterDisplay from "./MonsterDisplay";
+import type { MonsterState } from "./MonsterDisplay";
+import type { Problem } from "../engine/types";
+import BalanzaGame from "./BalanzaGame";
+import BotellasGame from "./BotellasGame";
+import RelojGame from "./RelojGame";
+import TiendaGame from "./TiendaGame";
+import MiniGameScreen from "./MiniGameScreen";
 
 export interface SessionScreenProps {
   onSessionComplete: (sessionResultId: string) => void;
@@ -32,6 +43,15 @@ const SessionScreen: React.FC<SessionScreenProps> = ({ onSessionComplete }) => {
     correctAnswer?: number;
   } | null>(null);
   const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [monsterState, setMonsterState] = useState<MonsterState>("idle");
+
+  // ── Interleaved mini-game state ───────────────
+
+  const INTERLEAVE_EVERY = 5;
+  const gamesShownRef = useRef(0);
+  const [showInterleavedGame, setShowInterleavedGame] = useState(false);
+  const [interleavedGameType, setInterleavedGameType] =
+    useState<ContextualGameType>("memory");
 
   // Auto-start session on mount
   useEffect(() => {
@@ -48,15 +68,10 @@ const SessionScreen: React.FC<SessionScreenProps> = ({ onSessionComplete }) => {
         clearTimeout(fadeTimerRef.current);
       }
 
-      const correctAnswer =
-        session.feedbackType === "incorrect" && session.currentProblem
-          ? session.currentProblem.answer
-          : undefined;
-
       setVisibleFeedback({
         message: session.feedbackMessage,
         type: session.feedbackType,
-        correctAnswer,
+        correctAnswer: undefined,
       });
 
       const duration =
@@ -77,6 +92,50 @@ const SessionScreen: React.FC<SessionScreenProps> = ({ onSessionComplete }) => {
       }
     };
   }, [session.feedbackMessage, session.feedbackType, session.currentProblem]);
+
+  // ── Interleaved mini-game trigger ─────────────
+  // After feedback fades, check if 5 correct answers reached
+
+  useEffect(() => {
+    if (visibleFeedback || showInterleavedGame) return;
+
+    const expectedGames = Math.floor(session.totalCorrect / INTERLEAVE_EVERY);
+    if (expectedGames > gamesShownRef.current && session.totalCorrect > 0) {
+      gamesShownRef.current = expectedGames;
+      session.pauseTimer();
+      const gameType = gameTypeForSubSkill(session.currentSubSkillId);
+      setInterleavedGameType(gameType);
+      setShowInterleavedGame(true);
+    }
+  }, [visibleFeedback, showInterleavedGame, session.totalCorrect, session.currentSubSkillId, session]);
+
+  const handleInterleavedGameEnd = useCallback(() => {
+    setShowInterleavedGame(false);
+    session.resumeTimer();
+  }, [session]);
+
+  // ── Monster state tracking ────────────────────
+  // Syncs the mascot state based on feedback type and problem state.
+  useEffect(() => {
+    if (visibleFeedback) {
+      // Feedback is showing — set monster reaction
+      switch (visibleFeedback.type) {
+        case "correct":
+          setMonsterState("happy");
+          break;
+        case "incorrect":
+          setMonsterState("sad");
+          break;
+        case "streak":
+        case "milestone":
+          setMonsterState("celebration");
+          break;
+      }
+    } else if (session.currentProblem) {
+      // New problem visible — thinking briefly
+      setMonsterState("thinking");
+    }
+  }, [visibleFeedback, session.currentProblem]);
 
   // ── Watch for session completion ──────────────
 
@@ -108,23 +167,94 @@ const SessionScreen: React.FC<SessionScreenProps> = ({ onSessionComplete }) => {
 
   const isProblemDisabled = visibleFeedback !== null;
 
+  /** Render the right interleaved mini-game based on the current skill. */
+  function renderInterleavedGame(
+    gameType: ContextualGameType,
+    recentProblems: Problem[],
+    onWin: (stars: number) => void,
+    onSkip: () => void,
+  ): React.ReactNode {
+    // If recent problems exist and game is memory, use contextual memory
+    if (gameType === GAME_TYPES.MEMORY && recentProblems.length >= 2) {
+      return (
+        <div className="smartick-interleaved-game">
+          <MiniGameScreen
+            onWin={onWin}
+            onSkip={onSkip}
+            contextualProblems={recentProblems}
+          />
+        </div>
+      );
+    }
+    // Standard game routing
+    switch (gameType) {
+      case GAME_TYPES.BALANZA:
+        return (
+          <div className="smartick-interleaved-game">
+            <BalanzaGame onWin={onWin} onSkip={onSkip} />
+          </div>
+        );
+      case GAME_TYPES.BOTELLAS:
+        return (
+          <div className="smartick-interleaved-game">
+            <BotellasGame onWin={onWin} onSkip={onSkip} />
+          </div>
+        );
+      case GAME_TYPES.RELOJ:
+        return (
+          <div className="smartick-interleaved-game">
+            <RelojGame onWin={onWin} onSkip={onSkip} />
+          </div>
+        );
+      case GAME_TYPES.TIENDA:
+        return (
+          <div className="smartick-interleaved-game">
+            <TiendaGame onWin={onWin} onSkip={onSkip} />
+          </div>
+        );
+      default:
+        // Fallback to normal MiniGameScreen
+        return (
+          <div className="smartick-interleaved-game">
+            <MiniGameScreen onWin={onWin} onSkip={onSkip} />
+          </div>
+        );
+    }
+  }
+
   return (
     <div className="smartick-session-screen">
       {/* Top bar: timer + stars */}
       <div className="smartick-session-screen__top-bar">
-        <TimerDisplay seconds={session.remaining} />
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <MuteButton isMuted={session.isMuted} onToggle={session.toggleMute} />
+          <MonsterDisplay state={monsterState} size="small" />
+          <TimerDisplay seconds={session.remaining} />
+          {showInterleavedGame && (
+            <span className="smartick-session-screen__paused">⏸</span>
+          )}
+        </div>
         <StarCounter stars={session.stars} streak={session.streak} />
       </div>
 
-      {/* Problem area */}
+      {/* Problem area or interleaved mini-game */}
       <div className="smartick-session-screen__problem-area">
-        {session.currentProblem && (
-          <ProblemView
-            key={session.currentProblem.id}
-            problem={session.currentProblem}
-            onAnswer={handleAnswer}
-            disabled={isProblemDisabled}
-          />
+        {showInterleavedGame ? (
+          renderInterleavedGame(
+            interleavedGameType,
+            session.recentProblems,
+            handleInterleavedGameEnd,
+            handleInterleavedGameEnd,
+          )
+        ) : (
+          session.currentProblem && (
+            <ProblemView
+              key={session.currentProblem.id}
+              problem={session.currentProblem}
+              onAnswer={handleAnswer}
+              disabled={isProblemDisabled}
+            />
+          )
         )}
       </div>
 
