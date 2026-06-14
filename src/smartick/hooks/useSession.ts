@@ -227,6 +227,7 @@ export function useSession(): UseSessionReturn {
         type: generated.type,
         options: generated.options,
         visualData: generated.visualData,
+        sceneData: generated.sceneData,
       };
     },
     [],

@@ -19,6 +19,7 @@ import SessionScreen from "./SessionScreen";
 import ResultsScreen from "./ResultsScreen";
 import CorrectionPhase from "./CorrectionPhase";
 import MiniGameScreen from "./MiniGameScreen";
+import VisualTestScreen from "./VisualTestScreen";
 import ChildDashboard from "./ChildDashboard";
 import ParentGate from "./ParentGate";
 import ParentView from "./ParentView";
@@ -137,6 +138,10 @@ const SmartickApp: React.FC = () => {
     dispatch({ type: "NAVIGATE", view: VIEWS.HOME });
   }, []);
 
+  const goToVisualTest = useCallback(() => {
+    dispatch({ type: "NAVIGATE", view: VIEWS.TEST_VISUAL });
+  }, []);
+
   // ── Correction state ──────────────────────────
 
   const [correctionProblems, setCorrectionProblems] = useState<Problem[]>([]);
@@ -194,6 +199,7 @@ const SmartickApp: React.FC = () => {
           <ChildDashboard
             onStart={goToSession}
             onParentGate={goToParent}
+            onVisualTest={goToVisualTest}
           />
         );
 
@@ -231,6 +237,9 @@ const SmartickApp: React.FC = () => {
             onSkip={handleMinigameSkip}
           />
         );
+
+      case VIEWS.TEST_VISUAL:
+        return <VisualTestScreen onBack={goToDashboard} />;
 
       case VIEWS.PARENT:
         return <ParentView onBack={goToDashboard} />;

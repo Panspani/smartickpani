@@ -24,11 +24,13 @@ import StartScreen from "./StartScreen";
 export interface ChildDashboardProps {
   onStart: () => void;
   onParentGate: () => void;
+  onVisualTest?: () => void;
 }
 
 const ChildDashboard: React.FC<ChildDashboardProps> = ({
   onStart,
   onParentGate,
+  onVisualTest,
 }) => {
   const storage = useStorage();
 
@@ -193,6 +195,27 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
         >
           Vista de padres
         </button>
+        {onVisualTest && (
+          <button
+            onClick={onVisualTest}
+            type="button"
+            style={{
+              marginTop: "0.5rem",
+              padding: "0.4rem 1rem",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              fontFamily: '"Baloo 2", "Segoe UI", system-ui, sans-serif',
+              color: "rgba(255,255,255,0.5)",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "20px",
+              cursor: "pointer",
+              width: "100%",
+            }}
+          >
+            🧪 Test visual
+          </button>
+        )}
       </div>
     </div>
   );

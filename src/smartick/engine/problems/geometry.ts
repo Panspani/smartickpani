@@ -4,6 +4,8 @@ import type {
   ProblemGenerator,
   SubSkillId,
 } from "../types";
+import type { GeometryShapeScene } from "../scenes/types";
+import type { VisualProblemData } from "../scenes/types";
 import { SUB_SKILL_IDS } from "../types";
 import {
   createSeededRng,
@@ -23,6 +25,15 @@ interface ShapeEntry {
   vertices: number;
   axesSimetria: number;
 }
+
+/** Mapping from Spanish shape names to GeometryShapeScene shape keys + color. */
+const SHAPE_SCENE_MAP: Record<string, { shape: GeometryShapeScene["shape"]; color: string } | undefined> = {
+  triángulo: { shape: "triangle", color: "#FF6B35" },
+  cuadrado: { shape: "square", color: "#00B894" },
+  rectángulo: { shape: "rectangle", color: "#74B9FF" },
+  pentágono: { shape: "pentagon", color: "#A29BFE" },
+  hexágono: { shape: "hexagon", color: "#FF7675" },
+};
 
 const SHAPES_BASIC: ShapeEntry[] = [
   { name: "triángulo", sides: 3, vertices: 3, axesSimetria: 3 },
@@ -104,11 +115,31 @@ function generadorFigClasificacion(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
+  // GeometryShapeScene for supported shapes (tier 1–2 only, shape mapping exists)
+  const sceneMapping = SHAPE_SCENE_MAP[shape.name];
+  const sceneData: VisualProblemData | undefined =
+    sceneMapping && ctx.tier <= 2
+      ? {
+          scene: {
+            type: "geometry-shape",
+            shape: sceneMapping.shape,
+            count: index === 0 ? shape.sides : shape.vertices,
+            color: sceneMapping.color,
+          },
+          story: text,
+          question: text,
+          narration: text,
+          answer,
+          options: [...options, answer],
+        }
+      : undefined;
+
   return {
     text,
     answer,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, answer]),
+    sceneData,
     visualData: {
       type: "shape",
       data: {

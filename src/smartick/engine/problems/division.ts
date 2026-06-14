@@ -12,6 +12,7 @@ import {
   rngShuffle,
   generateDistractors,
 } from "./templates";
+import { generateDivisionScene } from "../scenes/division";
 
 // ──────────────────────────────────────────────
 // Skill-06-01: Divisiones exactas (por 1 cifra)
@@ -169,6 +170,7 @@ function generadorDivProblemas(ctx: GeneratorContext): GeneratorResult {
 
   let text: string;
   let answer: number;
+  let grupos = 0;
 
   switch (ctx.tier) {
     case 1: {
@@ -177,6 +179,7 @@ function generadorDivProblemas(ctx: GeneratorContext): GeneratorResult {
       const amigos = rngPick(rng, [2, 3, 5]);
       // Ajustar total para que sea divisible
       const ajustado = Math.floor(total / amigos) * amigos;
+      grupos = amigos;
       answer = ajustado / amigos;
       text = `Ana reparte ${ajustado} ${cosa} entre ${amigos} amigos, en partes iguales. ¿Cuántos ${cosa} le tocan a cada uno?`;
       break;
@@ -186,13 +189,14 @@ function generadorDivProblemas(ctx: GeneratorContext): GeneratorResult {
       const total = rngInt(rng, 12, 48);
       const amigos = rngPick(rng, [3, 4, 6, 7]);
       const ajustado = Math.floor(total / amigos) * amigos;
+      grupos = amigos;
       answer = ajustado / amigos;
       text = `Hay ${ajustado} ${cosa} para repartir entre ${amigos} niños. Cada niño recibe la misma cantidad. ¿Cuántos ${cosa} recibe cada uno?`;
       break;
     }
     default: {
       // HARD: reparto con divisores más grandes
-      const grupos = rngPick(rng, [8, 9, 10]);
+      grupos = rngPick(rng, [8, 9, 10]);
       const total = rngInt(rng, 24, 80);
       const ajustado = Math.floor(total / grupos) * grupos;
       answer = ajustado / grupos;
@@ -209,11 +213,16 @@ function generadorDivProblemas(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
+  const sceneData = ctx.tier <= 2
+    ? generateDivisionScene(answer * grupos, grupos, answer, ctx.seed)
+    : undefined;
+
   return {
     text,
     answer,
     type: "multiple-choice",
     options: rngShuffle(rng, [...options, answer]),
+    sceneData,
   };
 }
 

@@ -12,6 +12,7 @@ import {
   rngShuffle,
   generateDistractors,
 } from "./templates";
+import { generateMultiplicationScene } from "../scenes/multiplication";
 
 // ──────────────────────────────────────────────
 // Skill-05-01: Tablas del 1 al 10
@@ -287,7 +288,7 @@ function generadorMultProblemas(ctx: GeneratorContext): GeneratorResult {
     }
   }
 
-  // Object group visual
+  // Fallback visual (always present)
   const iconsMult = ["🍎", "📚", "🎒", "🧸", "🎨", "🧮", "🎲", "✏️"];
   const icon = iconsMult[contexto % iconsMult.length];
   const visualData = {
@@ -295,11 +296,18 @@ function generadorMultProblemas(ctx: GeneratorContext): GeneratorResult {
     data: { groups: grupos, perGroup: porGrupo, icon },
   };
 
+  // Rich animated scene for Smartick-style story problems (tier 1–2 only)
+  const sceneData =
+    ctx.tier <= 2
+      ? generateMultiplicationScene(grupos, porGrupo, answer, ctx.seed)
+      : undefined;
+
   return {
     text,
     answer,
     type: "numeric-input",
     visualData,
+    sceneData,
   };
 }
 

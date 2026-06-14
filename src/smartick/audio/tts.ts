@@ -24,13 +24,20 @@ let _speechMuted = false;
  *
  * @param text - The text to speak (Spanish phrases expected).
  * @param rate - Speech rate; 0.9 is slightly slower for children (default).
+ * @param onEnd - Optional callback fired when speech finishes (or is cancelled).
  *
  * Respects both `ttsEnabled` gate and `speechMuted` master mute.
  * Silently no-ops if `window.speechSynthesis` is unavailable (graceful degradation).
  */
-export function speak(text: string, rate = 0.9): void {
-  if (!_ttsEnabled || _speechMuted) return;
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
+export function speak(text: string, rate = 0.9, onEnd?: () => void): void {
+  if (!_ttsEnabled || _speechMuted) {
+    onEnd?.();
+    return;
+  }
+  if (typeof window === "undefined" || !window.speechSynthesis) {
+    onEnd?.();
+    return;
+  }
 
   // Cancel any utterance in progress before starting a new one
   window.speechSynthesis.cancel();
@@ -38,6 +45,10 @@ export function speak(text: string, rate = 0.9): void {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "es-AR";
   utterance.rate = rate;
+  if (onEnd) {
+    utterance.onend = onEnd;
+    utterance.onerror = onEnd;
+  }
   window.speechSynthesis.speak(utterance);
 }
 

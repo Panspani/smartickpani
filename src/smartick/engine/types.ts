@@ -66,6 +66,8 @@ export const VIEWS = {
   CORRECTION: "correction",
   PARENT: "parent",
   MINIGAME: "minigame",
+  /** Debug: visual scene test (remove before production) */
+  TEST_VISUAL: "test-visual",
 } as const;
 export type View = (typeof VIEWS)[keyof typeof VIEWS];
 
@@ -81,6 +83,10 @@ export const PROBLEM_TYPES = {
   MEASUREMENT: "measurement",
 } as const;
 export type ProblemType = (typeof PROBLEM_TYPES)[keyof typeof PROBLEM_TYPES];
+
+// === Forward declaration for visual scene data ===
+// (full type in engine/scenes/types.ts)
+export type VisualProblemData = import("./scenes/types").VisualProblemData;
 
 // === Core Data Interfaces ===
 
@@ -117,6 +123,8 @@ export interface Problem {
   answer: number;             // Correct answer
   options?: number[];         // 4 items for multiple-choice
   visualData?: VisualData;    // visual/interactive problem data
+  /** Visual scene data for rich animated story problems (Smartick-style) */
+  sceneData?: VisualProblemData;
   tier: Tier;
   phase: Phase;
 }
@@ -336,6 +344,7 @@ export interface GeneratorResult {
   type: ProblemType;
   options?: number[];
   visualData?: VisualData;
+  sceneData?: VisualProblemData;
 }
 
 export type ProblemGenerator = (context: GeneratorContext) => GeneratorResult;

@@ -15,6 +15,7 @@ import type { ContextualGameType } from "../engine/gameRouter";
 import TimerDisplay from "./TimerDisplay";
 import StarCounter from "./StarCounter";
 import ProblemView from "./ProblemView";
+import VisualProblemView from "./VisualProblemView";
 import FeedbackOverlay from "./FeedbackOverlay";
 import MuteButton from "./MuteButton";
 import MonsterDisplay from "./MonsterDisplay";
@@ -247,14 +248,23 @@ const SessionScreen: React.FC<SessionScreenProps> = ({ onSessionComplete }) => {
             handleInterleavedGameEnd,
           )
         ) : (
-          session.currentProblem && (
+          session.currentProblem &&
+          session.currentProblem.sceneData ? (
+            <VisualProblemView
+              key={session.currentProblem.id}
+              problem={session.currentProblem.sceneData}
+              problemType={session.currentProblem.type}
+              onAnswer={handleAnswer}
+              disabled={isProblemDisabled}
+            />
+          ) : session.currentProblem ? (
             <ProblemView
               key={session.currentProblem.id}
               problem={session.currentProblem}
               onAnswer={handleAnswer}
               disabled={isProblemDisabled}
             />
-          )
+          ) : null
         )}
       </div>
 
