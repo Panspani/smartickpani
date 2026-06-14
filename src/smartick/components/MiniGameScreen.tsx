@@ -8,7 +8,7 @@
  * @module components/MiniGameScreen
  */
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import MonsterDisplay from "./MonsterDisplay";
 import type { MonsterState } from "./MonsterDisplay";
 import type { Problem } from "../engine/types";
@@ -161,21 +161,19 @@ const MiniGameScreen: React.FC<MiniGameScreenProps> = ({
   const [isChecking, setIsChecking] = useState(false);
   const [gamePhase, setGamePhase] = useState<GamePhase>("playing");
   const [monsterState, setMonsterState] = useState<MonsterState>("idle");
-  const [showBackButton, setShowBackButton] = useState(false);
 
   const totalPairs = cards.length / 2;
   const matchedPairs = cards.filter((c) => c.isMatched).length;
 
-  // Win detection
+  // Win detection — auto-call onWin after celebration
   useEffect(() => {
     if (matchedPairs === cards.length && gamePhase === "playing") {
       setGamePhase("won");
       setMonsterState("celebration");
-      // Delay "Volver" button so celebration plays first
-      const timer = setTimeout(() => setShowBackButton(true), 1800);
+      const timer = setTimeout(() => onWin(2), 2500);
       return () => clearTimeout(timer);
     }
-  }, [matchedPairs, cards.length, gamePhase]);
+  }, [matchedPairs, cards.length, gamePhase, onWin]);
 
   // Card tap handler
   const handleCardTap = useCallback(
@@ -369,17 +367,6 @@ const MiniGameScreen: React.FC<MiniGameScreenProps> = ({
           <div className="smartick-minigame__win-mascot">
             <MonsterDisplay state="celebration" size="large" />
           </div>
-
-          {/* Back button (appears after delay) */}
-          {showBackButton && (
-            <button
-              className="smartick-minigame__back-button"
-              onClick={() => onWin(2)}
-              type="button"
-            >
-              Volver al inicio
-            </button>
-          )}
         </div>
       )}
     </div>
