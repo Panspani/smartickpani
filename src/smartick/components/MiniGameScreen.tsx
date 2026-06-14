@@ -227,7 +227,7 @@ const MiniGameScreen: React.FC<MiniGameScreenProps> = ({
 
   // Render the selected game type (laberinto / puzzle / memory)
   if (gameType === "laberinto") {
-    return <LaberintoGame onWin={onWin} onSkip={onSkip} />;
+    return <LaberintoGame onWin={onWin} onSkip={onSkip} recentProblems={contextualProblems} />;
   }
   if (gameType === "puzzle") {
     return <PuzzleGame onWin={onWin} onSkip={onSkip} />;

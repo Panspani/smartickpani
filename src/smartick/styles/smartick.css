@@ -4291,3 +4291,98 @@
   font-size: 0.85rem;
   color: var(--smartick-text-light);
 }
+
+/* ── Round progress dots (shared by all games) ─── */
+
+.smartick-balanza__rounds {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.smartick-balanza__round-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 2px solid var(--smartick-text-light);
+  color: var(--smartick-text-light);
+  background: var(--smartick-card);
+  transition: all 0.2s;
+}
+
+.smartick-balanza__round-dot--active {
+  border-color: var(--smartick-primary);
+  color: var(--smartick-primary);
+  background: rgba(255, 107, 53, 0.08);
+}
+
+.smartick-balanza__round-dot--done {
+  border-color: var(--smartick-success);
+  color: white;
+  background: var(--smartick-success);
+}
+
+/* ── Context hint for Laberinto contextual mode ── */
+
+.smartick-minigame__context-hint {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--smartick-text);
+  margin: 0.25rem 0 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--smartick-card);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* ── Reloj option buttons (leer mode) ──────────── */
+
+.smartick-reloj__options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 280px;
+}
+
+.smartick-reloj__option-btn {
+  padding: 0.7rem;
+  border: 2px solid var(--smartick-secondary);
+  background: var(--smartick-card);
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--smartick-text);
+}
+
+.smartick-reloj__option-btn:hover {
+  background: var(--smartick-secondary);
+  color: white;
+}
+
+.smartick-reloj__option-btn--correct {
+  border-color: var(--smartick-success);
+  background: var(--smartick-success-light);
+  color: white;
+}
+
+.smartick-reloj__option-btn--wrong {
+  border-color: var(--smartick-error);
+  background: #ffe0e0;
+}
+
+/* ── Cell states for contextual Laberinto ──────── */
+
+.smartick-minigame__cell--found {
+  background: var(--smartick-success-light) !important;
+  border-color: var(--smartick-success) !important;
+  opacity: 0.7;
+}

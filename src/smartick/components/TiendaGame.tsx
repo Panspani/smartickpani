@@ -1,9 +1,7 @@
 /**
- * TiendaGame — Pagar el precio exacto con monedas (dinero: euros).
+ * TiendaGame — Pagar precio exacto con monedas (euros).
  *
- * Se muestra un producto con su precio (ej: "2,35 €"). El usuario
- * selecciona monedas/billetes hasta juntar el importe exacto.
- * Cuando el total coincide, gana.
+ * 3 rondas progresivas: fácil (≤1€), medio (1-3€), difícil (3-5€).
  *
  * @module components/TiendaGame
  */
@@ -15,11 +13,9 @@ export interface TiendaGameProps {
   onSkip: () => void;
 }
 
-// ── Constants ────────────────────────────────────
-
 interface Coin {
   label: string;
-  value: number; // in cents
+  value: number;
   emoji: string;
 }
 
@@ -36,24 +32,39 @@ const COINS: Coin[] = [
 
 interface Product {
   name: string;
-  priceCents: number; // in cents
   emoji: string;
 }
 
 const PRODUCTS: Product[] = [
-  { name: "Manzana", priceCents: 125, emoji: "🍎" },
-  { name: "Pan", priceCents: 230, emoji: "🍞" },
-  { name: "Leche", priceCents: 315, emoji: "🥛" },
-  { name: "Galletas", priceCents: 150, emoji: "🍪" },
-  { name: "Agua", priceCents: 110, emoji: "💧" },
-  { name: "Lápiz", priceCents: 85, emoji: "✏️" },
-  { name: "Chocolate", priceCents: 200, emoji: "🍫" },
-  { name: "Globo", priceCents: 170, emoji: "🎈" },
-  { name: "Helado", priceCents: 280, emoji: "🍦" },
+  { name: "Manzana", emoji: "🍎" },
+  { name: "Pan", emoji: "🍞" },
+  { name: "Leche", emoji: "🥛" },
+  { name: "Galletas", emoji: "🍪" },
+  { name: "Agua", emoji: "💧" },
+  { name: "Lápiz", emoji: "✏️" },
+  { name: "Chocolate", emoji: "🍫" },
+  { name: "Helado", emoji: "🍦" },
+  { name: "Globo", emoji: "🎈" },
 ];
 
 function randomProduct(): Product {
   return PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
+}
+
+function generatePrice(round: number): number {
+  if (round === 0) {
+    // ≤1€: prices in round 5c increments
+    const cents = [50, 65, 80, 95, 110, 125, 150, 175, 200];
+    return cents[Math.floor(Math.random() * cents.length)];
+  }
+  if (round === 1) {
+    // 1-3€
+    const cents = [150, 185, 220, 250, 275, 300, 350, 400, 450, 500];
+    return cents[Math.floor(Math.random() * cents.length)];
+  }
+  // 3-5€
+  const cents = [300, 350, 400, 450, 500, 550, 600, 700, 800, 900, 1000];
+  return cents[Math.floor(Math.random() * cents.length)];
 }
 
 function formatCents(cents: number): string {
@@ -62,116 +73,101 @@ function formatCents(cents: number): string {
   return `${euros},${centimos.toString().padStart(2, "0")} €`;
 }
 
-// ── Component ────────────────────────────────────
-
 const TiendaGame: React.FC<TiendaGameProps> = ({ onWin, onSkip }) => {
+  const [round, setRound] = useState(0);
   const [product] = useState(randomProduct);
+  const [priceCents, setPriceCents] = useState(() => generatePrice(0));
   const [paid, setPaid] = useState<Coin[]>([]);
   const [won, setWon] = useState(false);
+  const [roundWon, setRoundWon] = useState(false);
 
-  const totalPaid = useMemo(
-    () => paid.reduce((sum, c) => sum + c.value, 0),
-    [paid],
-  );
-
-  const isExact = totalPaid === product.priceCents;
-  const isOver = totalPaid > product.priceCents;
+  const totalPaid = useMemo(() => paid.reduce((sum, c) => sum + c.value, 0), [paid]);
 
   const handleAddCoin = useCallback(
     (coin: Coin) => {
-      if (won) return;
+      if (won || roundWon) return;
       const newTotal = totalPaid + coin.value;
-      if (newTotal > product.priceCents) return; // Can't overpay
+      if (newTotal > priceCents) return;
       const newPaid = [...paid, coin];
       setPaid(newPaid);
-
-      if (newTotal === product.priceCents) {
-        setWon(true);
-        setTimeout(() => onWin(1), 1200);
+      if (newTotal === priceCents) {
+        setRoundWon(true);
+        setTimeout(() => {
+          if (round >= 2) {
+            setWon(true);
+            setTimeout(() => onWin(1), 1000);
+          } else {
+            setRound((r) => r + 1);
+            setPriceCents(generatePrice(round + 1));
+            setPaid([]);
+            setRoundWon(false);
+          }
+        }, 1200);
       }
     },
-    [paid, totalPaid, product.priceCents, won, onWin],
+    [paid, totalPaid, priceCents, round, won, roundWon, onWin],
   );
 
   const handleUndo = useCallback(() => {
-    if (won || paid.length === 0) return;
+    if (won || roundWon || paid.length === 0) return;
     setPaid(paid.slice(0, -1));
-  }, [paid, won]);
+  }, [paid, won, roundWon]);
 
   const handleReset = useCallback(() => {
-    if (won) return;
+    if (won || roundWon) return;
     setPaid([]);
-  }, [won]);
+  }, [won, roundWon]);
 
   return (
     <div className="smartick-tienda">
       <div className="smartick-tienda__header">
         <h2 className="smartick-tienda__title">🏪 Pagá el producto</h2>
         {!won && (
-          <button
-            className="smartick-tienda__skip"
-            onClick={onSkip}
-            type="button"
-            aria-label="Saltar"
-          >
-            ✕
-          </button>
+          <button className="smartick-tienda__skip" onClick={onSkip} type="button">✕</button>
         )}
       </div>
 
-      {/* ── Product display ─────────────────────── */}
+      <div className="smartick-balanza__rounds">
+        {[0, 1, 2].map((r) => (
+          <span key={r} className={`smartick-balanza__round-dot ${r < round ? "smartick-balanza__round-dot--done" : ""} ${r === round ? "smartick-balanza__round-dot--active" : ""}`}>
+            {r + 1}
+          </span>
+        ))}
+      </div>
+
       <div className="smartick-tienda__product">
         <span className="smartick-tienda__product-emoji">{product.emoji}</span>
         <span className="smartick-tienda__product-name">{product.name}</span>
-        <span className="smartick-tienda__product-price">
-          {formatCents(product.priceCents)}
-        </span>
+        <span className="smartick-tienda__product-price">{formatCents(priceCents)}</span>
       </div>
 
-      {/* ── Payment area ────────────────────────── */}
       <div className="smartick-tienda__payment">
         <div className="smartick-tienda__payment-header">
           <span>Pagado:</span>
-          <span className="smartick-tienda__payment-total">
-            {formatCents(totalPaid)}
-          </span>
+          <span className="smartick-tienda__payment-total">{formatCents(totalPaid)}</span>
         </div>
         <div className="smartick-tienda__payment-coins">
           {paid.length === 0 ? (
-            <span className="smartick-tienda__payment-empty">
-              Seleccioná monedas abajo
-            </span>
+            <span className="smartick-tienda__payment-empty">Seleccioná monedas</span>
           ) : (
-            paid.map((c, i) => (
-              <span key={i} className="smartick-tienda__coin-display" title={c.label}>
-                {c.emoji}
-              </span>
-            ))
+            paid.map((c, i) => <span key={i} className="smartick-tienda__coin-display" title={c.label}>{c.emoji}</span>)
           )}
         </div>
       </div>
 
-      {/* ── Status ──────────────────────────────── */}
       <div className="smartick-tienda__status">
         {won ? (
-          <span className="smartick-tienda__win">🎉 ¡Pago exacto! +1 ⭐</span>
-        ) : isExact && totalPaid > 0 ? (
-          <span className="smartick-tienda__exact">✓ ¡Justo!</span>
-        ) : isOver ? (
-          <span className="smartick-tienda__over">Te sobra plata</span>
+          <span className="smartick-tienda__win">🎉 ¡Completaste! +1 ⭐</span>
+        ) : roundWon ? (
+          <span className="smartick-tienda__exact">✓ ¡Pago exacto!</span>
         ) : totalPaid === 0 ? (
-          <span className="smartick-tienda__hint">
-            Pagá {formatCents(product.priceCents - totalPaid)}
-          </span>
+          <span className="smartick-tienda__hint">Pagá {formatCents(priceCents)}</span>
         ) : (
-          <span className="smartick-tienda__remaining">
-            Faltan {formatCents(product.priceCents - totalPaid)}
-          </span>
+          <span className="smartick-tienda__remaining">Faltan {formatCents(priceCents - totalPaid)}</span>
         )}
       </div>
 
-      {/* ── Coins ───────────────────────────────── */}
-      {!won && (
+      {!won && !roundWon && (
         <div className="smartick-tienda__coins">
           {COINS.map((coin) => (
             <button
@@ -179,7 +175,7 @@ const TiendaGame: React.FC<TiendaGameProps> = ({ onWin, onSkip }) => {
               className="smartick-tienda__coin-btn"
               onClick={() => handleAddCoin(coin)}
               type="button"
-              disabled={totalPaid + coin.value > product.priceCents}
+              disabled={totalPaid + coin.value > priceCents}
               title={coin.label}
             >
               <span className="smartick-tienda__coin-emoji">{coin.emoji}</span>
@@ -189,27 +185,12 @@ const TiendaGame: React.FC<TiendaGameProps> = ({ onWin, onSkip }) => {
         </div>
       )}
 
-      {/* ── Actions ─────────────────────────────── */}
-      <div className="smartick-tienda__actions">
-        {!won && paid.length > 0 && (
-          <>
-            <button
-              className="smartick-tienda__undo"
-              onClick={handleUndo}
-              type="button"
-            >
-              ↩ Quitar última
-            </button>
-            <button
-              className="smartick-tienda__reset"
-              onClick={handleReset}
-              type="button"
-            >
-              🔄 Empezar de nuevo
-            </button>
-          </>
-        )}
-      </div>
+      {!won && !roundWon && paid.length > 0 && (
+        <div className="smartick-tienda__actions">
+          <button className="smartick-tienda__undo" onClick={handleUndo} type="button">↩ Quitar última</button>
+          <button className="smartick-tienda__reset" onClick={handleReset} type="button">🔄 Empezar de nuevo</button>
+        </div>
+      )}
     </div>
   );
 };

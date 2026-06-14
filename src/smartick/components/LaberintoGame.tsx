@@ -1,20 +1,22 @@
 /**
  * LaberintoGame — Number maze grid game.
  *
- * Grid (3×3, 4×4, or 5×5) with shuffled numbers 1 to N².
- * Player starts at 1 and must tap adjacent cells containing the next
- * number in sequence. Wrong taps flash red. Win = reach the last number.
+ * Two modes:
+ *   Contextual (recentProblems): grid has problem answers, find them in order
+ *   Classic (no problems): snake path 1→N²
  *
  * @module components/LaberintoGame
  */
 
 import React, { useState, useMemo } from "react";
+import type { Problem } from "../engine/types";
 
 // ── Props ──────────────────────────────────────────
 
 export interface LaberintoGameProps {
   onWin: (stars: number) => void;
   onSkip: () => void;
+  recentProblems?: Problem[];
 }
 
 // ── Types ──────────────────────────────────────────
@@ -25,21 +27,11 @@ interface CellInfo {
   col: number;
 }
 
-// ── Helpers ────────────────────────────────────────
+// ── Classic helpers ─────────────────────────────────
 
-/**
- * Generate a solvable number maze grid using a snake pattern.
- *
- * Numbers 1 through N² are placed along a Hamiltonian path through the grid,
- * ensuring each consecutive number pair is ADJACENT. The snake starts from
- * a random corner and snakes through rows in alternating directions.
- * Grid rotation (transpose) adds variety.
- */
 function generateSolvableGrid(size: number): CellInfo[] {
   const total = size * size;
   const cells: CellInfo[] = [];
-
-  // Random starting corner
   const startRow = Math.random() < 0.5 ? 0 : size - 1;
   const startCol = Math.random() < 0.5 ? 0 : size - 1;
   const rowDir = startRow === 0 ? 1 : -1;
@@ -50,16 +42,12 @@ function generateSolvableGrid(size: number): CellInfo[] {
   for (let r = 0; r < size; r++) {
     const row = startRow + r * rowDir;
     for (let c = 0; c < size; c++) {
-      // Even rows: normal direction; odd rows: reverse (snake)
-      const col = r % 2 === 0
-        ? startCol + c * colDir
-        : endCol - c * colDir;
+      const col = r % 2 === 0 ? startCol + c * colDir : endCol - c * colDir;
       cells.push({ value, row, col });
       value++;
     }
   }
 
-  // Randomly transpose (flip over diagonal) for more variety
   if (Math.random() < 0.5) {
     for (const cell of cells) {
       const tmp = cell.row;
@@ -71,7 +59,21 @@ function generateSolvableGrid(size: number): CellInfo[] {
   return cells;
 }
 
-/** Generate confetti particles for the win celebration. */
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function isAdjacent(a: CellInfo, b: CellInfo): boolean {
+  const rowDiff = Math.abs(a.row - b.row);
+  const colDiff = Math.abs(a.col - b.col);
+  return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
+}
+
 function generateConfetti(count: number) {
   const COLORS = [
     "var(--smartick-confetti-1, #FF6B35)",
@@ -91,32 +93,151 @@ function generateConfetti(count: number) {
   }));
 }
 
-/** Check if two cells are adjacent (up/down/left/right). */
-function isAdjacent(a: CellInfo, b: CellInfo): boolean {
-  const rowDiff = Math.abs(a.row - b.row);
-  const colDiff = Math.abs(a.col - b.col);
-  return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
-}
-
 // ── Component ──────────────────────────────────────
 
-const LaberintoGame: React.FC<LaberintoGameProps> = ({ onWin, onSkip }) => {
-  // Grid size: random 3, 4, or 5 (cap at 4 for very small screens)
+const LaberintoGame: React.FC<LaberintoGameProps> = ({
+  onWin,
+  onSkip,
+  recentProblems,
+}) => {
+  const isContextual =
+    recentProblems !== undefined && recentProblems.length >= 2;
+
+  // ═══════════════════════════════════════════════
+  // CONTEXTUAL MODE — find problem answers on grid
+  // ═══════════════════════════════════════════════
+
+  if (isContextual && recentProblems) {
+    const problems = recentProblems;
+    const gridSize = problems.length <= 4 ? 3 : 4;
+    const totalCells = gridSize * gridSize;
+
+    // Build grid values: problem answers + distractors
+    const answers = problems.map((p) => p.answer);
+    const distractors: number[] = [];
+    while (answers.length + distractors.length < totalCells) {
+      const d = Math.floor(Math.random() * 30) + 1;
+      if (!answers.includes(d) && !distractors.includes(d)) {
+        distractors.push(d);
+      }
+    }
+    const allValues = shuffleArray([...answers, ...distractors]);
+    const gridCells = allValues.map((value, index) => ({
+      value,
+      row: Math.floor(index / gridSize),
+      col: index % gridSize,
+    }));
+
+    const [problemIndex, setProblemIndex] = useState(0);
+    const [foundAnswers, setFoundAnswers] = useState<Set<number>>(new Set());
+    const [errorValue, setErrorValue] = useState<number | null>(null);
+    const [won, setWon] = useState(false);
+
+    const currentProblem = problems[problemIndex];
+    const isLast = problemIndex >= problems.length - 1;
+
+    const handleCellTap = (val: number) => {
+      if (won) return;
+      if (foundAnswers.has(val)) return;
+
+      if (val === currentProblem.answer) {
+        const newFound = new Set(foundAnswers).add(val);
+        setFoundAnswers(newFound);
+        if (isLast) {
+          setWon(true);
+          setTimeout(() => onWin(1), 1000);
+        } else {
+          setProblemIndex((p) => p + 1);
+        }
+      } else {
+        setErrorValue(val);
+        setTimeout(() => setErrorValue(null), 300);
+      }
+    };
+
+    return (
+      <div className="smartick-minigame">
+        <header className="smartick-minigame__header">
+          <div className="smartick-minigame__header-top">
+            <h2 className="smartick-minigame__title">🔍 Buscá la respuesta</h2>
+            {!won && (
+              <button
+                className="smartick-minigame__skip-button"
+                onClick={onSkip}
+                type="button"
+                aria-label="Saltear"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </header>
+
+        {!won && (
+          <p className="smartick-minigame__context-hint">
+            <strong>
+              {currentProblem.text.replace(/\?$/, "")} = <u>?</u>
+            </strong>
+          </p>
+        )}
+
+        <div
+          className="smartick-minigame__grid"
+          style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
+        >
+          {gridCells.map((cell) => {
+            const isFound = foundAnswers.has(cell.value);
+            const isError = errorValue === cell.value;
+            return (
+              <button
+                key={`${cell.row}-${cell.col}`}
+                className={`smartick-minigame__cell ${
+                  isFound ? "smartick-minigame__cell--found" : ""
+                } ${isError ? "smartick-minigame__cell--error" : ""}`}
+                onClick={() => handleCellTap(cell.value)}
+                disabled={won || isFound}
+                type="button"
+                aria-label={`Valor ${cell.value}`}
+              >
+                <span className="smartick-minigame__cell-text">
+                  {cell.value}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="smartick-minigame__stats">
+          <span className="smartick-minigame__stat">
+            {problemIndex + 1} / {problems.length}
+          </span>
+        </div>
+
+        {won && (
+          <div className="smartick-minigame__win-overlay">
+            <div className="smartick-minigame__win-banner">
+              <span className="smartick-minigame__win-text">
+                🎉 ¡Todas las respuestas!
+              </span>
+              <span className="smartick-minigame__win-stars">+1 ⭐</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════════════
+  // CLASSIC MODE — snake path 1 → N²
+  // ═══════════════════════════════════════════════
+
   const [gridSize] = useState(() => {
     const sizes = [3, 4, 5];
-    if (window.innerWidth <= 360) {
-      // Only 3 or 4 for small screens
-      return sizes[Math.floor(Math.random() * 2)];
-    }
     return sizes[Math.floor(Math.random() * sizes.length)];
   });
 
   const totalCells = gridSize * gridSize;
-
-  // Generate grid once
   const [cells] = useState<CellInfo[]>(() => generateSolvableGrid(gridSize));
-
-  // Game state
   const [currentValue, setCurrentValue] = useState(1);
   const [visitedValues, setVisitedValues] = useState<Set<number>>(
     () => new Set([1]),
@@ -126,44 +247,34 @@ const LaberintoGame: React.FC<LaberintoGameProps> = ({ onWin, onSkip }) => {
   const [gamePhase, setGamePhase] = useState<"playing" | "won">("playing");
   const [showBackButton, setShowBackButton] = useState(false);
 
-  // Confetti (stable)
   const confetti = useMemo(() => generateConfetti(24), []);
 
   const currentCell = cells.find((c) => c.value === currentValue)!;
   const nextValue = currentValue + 1;
 
-  // ── Handlers ─────────────────────────────────────
-
   const handleCellTap = (value: number) => {
     if (gamePhase !== "playing") return;
-    if (value === currentValue) return; // Tapping the same cell
+    if (value === currentValue) return;
 
     const targetCell = cells.find((c) => c.value === value);
     if (!currentCell || !targetCell) return;
 
-    // Valid move: correct next number AND adjacent to current position
     if (value === nextValue && isAdjacent(currentCell, targetCell)) {
       setCurrentValue(value);
       setVisitedValues((prev) => new Set(prev).add(value));
-
-      // Win detection
       if (value === totalCells) {
         setGamePhase("won");
         setTimeout(() => setShowBackButton(true), 1800);
       }
     } else {
-      // Invalid move
       setWrongTaps((prev) => prev + 1);
       setErrorValue(value);
       setTimeout(() => setErrorValue(null), 300);
     }
   };
 
-  // ── Render ───────────────────────────────────────
-
   return (
     <div className="smartick-minigame">
-      {/* ── Header ────────────────────────────── */}
       <header className="smartick-minigame__header">
         <div className="smartick-minigame__header-top">
           <h2 className="smartick-minigame__title">🧩 Laberinto</h2>
@@ -172,7 +283,7 @@ const LaberintoGame: React.FC<LaberintoGameProps> = ({ onWin, onSkip }) => {
               className="smartick-minigame__skip-button"
               onClick={onSkip}
               type="button"
-              aria-label="Saltear minijuego"
+              aria-label="Saltear"
             >
               ✕
             </button>
@@ -181,9 +292,7 @@ const LaberintoGame: React.FC<LaberintoGameProps> = ({ onWin, onSkip }) => {
         <div className="smartick-minigame__stats">
           <span className="smartick-minigame__stat">
             Siguiente:{" "}
-            <strong>
-              {nextValue <= totalCells ? nextValue : "—"}
-            </strong>
+            <strong>{nextValue <= totalCells ? nextValue : "—"}</strong>
           </span>
           <span className="smartick-minigame__stat">
             Errores: <strong>{wrongTaps}</strong>
@@ -191,7 +300,6 @@ const LaberintoGame: React.FC<LaberintoGameProps> = ({ onWin, onSkip }) => {
         </div>
       </header>
 
-      {/* ── Number grid ───────────────────────── */}
       <div
         className="smartick-minigame__grid"
         style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
@@ -222,10 +330,8 @@ const LaberintoGame: React.FC<LaberintoGameProps> = ({ onWin, onSkip }) => {
         })}
       </div>
 
-      {/* ── Win overlay ───────────────────────── */}
       {gamePhase === "won" && (
         <div className="smartick-minigame__win-overlay">
-          {/* Confetti */}
           <div className="smartick-minigame__confetti" aria-hidden="true">
             {confetti.map((p) => (
               <span
@@ -243,15 +349,11 @@ const LaberintoGame: React.FC<LaberintoGameProps> = ({ onWin, onSkip }) => {
             ))}
           </div>
 
-          {/* Banner */}
           <div className="smartick-minigame__win-banner">
-            <span className="smartick-minigame__win-text">
-              🎉 ¡Ganaste!
-            </span>
+            <span className="smartick-minigame__win-text">🎉 ¡Ganaste!</span>
             <span className="smartick-minigame__win-stars">+1 ⭐</span>
           </div>
 
-          {/* Back button (appears after delay) */}
           {showBackButton && (
             <button
               className="smartick-minigame__back-button"
