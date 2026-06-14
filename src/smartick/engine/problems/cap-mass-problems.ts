@@ -87,12 +87,31 @@ function generadorCapMasaProblemas(ctx: GeneratorContext): GeneratorResult {
           options: [...options, answer],
         };
       } else {
-        // Mass problem: kg + g → total g — no natural scene, skip
+        // Mass problem: kg + g → total g — ScaleScene
         const kg = rngInt(rng, 1, 5);
         const g = rngPick(rng, [200, 500, 800]);
         answer = kg * 1000 + g;
         const comida = rngPick(rng, COSAS_SOLIDO);
         text = `Una bolsa tiene ${kg} kg y ${g} g de ${comida}. ¿Cuántos gramos pesa en total?`;
+
+        const { story, question } = splitText(text);
+        const massScene: ScaleScene = {
+          type: "scale",
+          leftItems: kg,
+          rightItems: Math.max(Math.round(g / 250), 1),
+          icon: "cookie",
+          itemLabel: "kg",
+        };
+        const errors = [answer + 1, answer - 1, answer + 100, answer - 100, answer + 500, answer - 500];
+        const options = generateDistractors(answer, 3, rng, errors);
+        sceneData = {
+          scene: massScene,
+          story,
+          question,
+          narration: `${story} ${question}`,
+          answer,
+          options: [...options, answer],
+        };
       }
       break;
     }

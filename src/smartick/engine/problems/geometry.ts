@@ -29,11 +29,25 @@ interface ShapeEntry {
 /** Mapping from Spanish shape names to GeometryShapeScene shape keys + color. */
 const SHAPE_SCENE_MAP: Record<string, { shape: GeometryShapeScene["shape"]; color: string } | undefined> = {
   triángulo: { shape: "triangle", color: "#FF6B35" },
+  "triángulo equilátero": { shape: "triangle", color: "#FF6B35" },
+  "triángulo isósceles": { shape: "triangle", color: "#FF6B35" },
+  "triángulo escaleno": { shape: "triangle", color: "#FF6B35" },
   cuadrado: { shape: "square", color: "#00B894" },
   rectángulo: { shape: "rectangle", color: "#74B9FF" },
   pentágono: { shape: "pentagon", color: "#A29BFE" },
+  "pentágono regular": { shape: "pentagon", color: "#A29BFE" },
   hexágono: { shape: "hexagon", color: "#FF7675" },
+  "hexágono regular": { shape: "hexagon", color: "#FF7675" },
 };
+
+/** Try to find a scene mapping for a shape name, including suffix fallback. */
+function resolveShapeScene(name: string): { shape: GeometryShapeScene["shape"]; color: string } | undefined {
+  const direct = SHAPE_SCENE_MAP[name];
+  if (direct) return direct;
+  // Try base name (e.g. "triángulo equilátero" → "triángulo")
+  const base = name.split(" ")[0];
+  return SHAPE_SCENE_MAP[base];
+}
 
 const SHAPES_BASIC: ShapeEntry[] = [
   { name: "triángulo", sides: 3, vertices: 3, axesSimetria: 3 },
@@ -116,7 +130,7 @@ function generadorFigClasificacion(ctx: GeneratorContext): GeneratorResult {
   const options = generateDistractors(answer, 3, rng, errors);
 
   // GeometryShapeScene for supported shapes (BASIC + MEDIUM)
-  const sceneMapping = SHAPE_SCENE_MAP[shape.name];
+  const sceneMapping = resolveShapeScene(shape.name);
   const sceneData: VisualProblemData | undefined =
     sceneMapping
       ? {
@@ -217,6 +231,7 @@ function generadorFigPerimetro(ctx: GeneratorContext): GeneratorResult {
 
   let text: string;
   let answer: number;
+  let figName: string | undefined;
 
   switch (ctx.tier) {
     case 1: {
@@ -224,6 +239,7 @@ function generadorFigPerimetro(ctx: GeneratorContext): GeneratorResult {
       const fig = rngPick(rng, FIGURAS_REGULARES);
       const lado = rngPick(rng, [3, 4, 5, 6, 7, 8, 10]);
       answer = lado * fig.lados;
+      figName = fig.nombre;
       text = `¿Cuál es el perímetro de un ${fig.nombre} de lado ${lado} cm?`;
       break;
     }
@@ -232,6 +248,7 @@ function generadorFigPerimetro(ctx: GeneratorContext): GeneratorResult {
       const base = rngInt(rng, 4, 12);
       const altura = rngInt(rng, 2, 8);
       answer = 2 * (base + altura);
+      figName = "rectángulo";
       text = `Un rectángulo mide ${base} cm de largo y ${altura} cm de ancho. ¿Cuál es su perímetro?`;
       break;
     }
@@ -239,9 +256,9 @@ function generadorFigPerimetro(ctx: GeneratorContext): GeneratorResult {
       // HARD: calcular lado faltante desde perímetro conocido
       const fig = rngPick(rng, FIGURAS_REGULARES.filter((f) => f.lados >= 3));
       const lado = rngInt(rng, 4, 10);
-      const perimetro = lado * fig.lados;
+      figName = fig.nombre;
       answer = lado;
-      text = `El perímetro de un ${fig.nombre} es ${perimetro} cm. ¿Cuánto mide cada lado?`;
+      text = `El perímetro de un ${fig.nombre} es ${lado * fig.lados} cm. ¿Cuánto mide cada lado?`;
       break;
     }
   }
@@ -254,12 +271,26 @@ function generadorFigPerimetro(ctx: GeneratorContext): GeneratorResult {
   ];
 
   const options = generateDistractors(answer, 3, rng, errors);
+  const shuffled = rngShuffle(rng, [...options, answer]);
+
+  const sceneMapping = figName ? resolveShapeScene(figName) : undefined;
+  const sceneData: VisualProblemData | undefined = sceneMapping
+    ? {
+        scene: { type: "geometry-shape", shape: sceneMapping.shape, count: answer, color: sceneMapping.color },
+        story: text,
+        question: text,
+        narration: text,
+        answer,
+        options: shuffled,
+      }
+    : undefined;
 
   return {
     text,
     answer,
     type: "multiple-choice",
-    options: rngShuffle(rng, [...options, answer]),
+    options: shuffled,
+    sceneData,
   };
 }
 
@@ -314,13 +345,21 @@ function generadorFigSimetria(ctx: GeneratorContext): GeneratorResult {
   // Para el círculo (ejes infinitos), hacemos una pregunta especial
   if (fig.ejes === 999) {
     const text = "¿Cuántos ejes de simetría tiene un círculo?";
-    const answer = 999; // marcador
-    // Opciones especiales para el círculo
+    const answer = 0; // "infinitos" pero representamos como 0
+    const options = rngShuffle(rng, [0, 1, 2, 4]);
     return {
       text,
-      answer: 0, // "infinitos" pero representamos como 0
+      answer,
       type: "multiple-choice",
-      options: rngShuffle(rng, [0, 1, 2, 4]),
+      options,
+      sceneData: {
+        scene: { type: "geometry-shape" as const, shape: "circle" as const, count: 999, color: "#FDCB6E" },
+        story: text,
+        question: text,
+        narration: text,
+        answer,
+        options,
+      },
       visualData: {
         type: "shape",
         data: {
@@ -342,12 +381,26 @@ function generadorFigSimetria(ctx: GeneratorContext): GeneratorResult {
   ];
 
   const options = generateDistractors(fig.ejes, 3, rng, errors);
+  const shuffled = rngShuffle(rng, [...options, fig.ejes]);
+
+  const sceneMapping = resolveShapeScene(fig.nombre);
+  const sceneData: VisualProblemData | undefined = sceneMapping
+    ? {
+        scene: { type: "geometry-shape", shape: sceneMapping.shape, count: fig.ejes, color: sceneMapping.color },
+        story: text,
+        question: text,
+        narration: text,
+        answer: fig.ejes,
+        options: shuffled,
+      }
+    : undefined;
 
   return {
     text,
     answer: fig.ejes,
     type: "multiple-choice",
-    options: rngShuffle(rng, [...options, fig.ejes]),
+    options: shuffled,
+    sceneData,
     visualData: {
       type: "shape",
       data: {
