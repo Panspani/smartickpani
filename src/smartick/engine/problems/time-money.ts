@@ -356,29 +356,33 @@ function generadorDineroProblemas(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
-  // Build a ShopScene for visual problems (tier 1-2)
-  let sceneData: { scene: ShopScene; story: string; question: string; narration: string; answer: number; options: number[] } | undefined;
-  if (ctx.tier <= 2) {
-    const itemName = `producto de ${tienda}`;
-    const itemIcon = ["📖", "🧸", "✏️", "🎪", "🍭"][tiendaIdx % 5];
-    const scene: ShopScene = {
-      type: "shop",
-      items: [{ name: itemName, price: precioE + precioC / 100, icon: itemIcon }],
-      payment: [],
-    };
-    const precioStr = `${precioE},${precioC.toString().padStart(2, "0")} €`;
-    const questionText = ctx.tier === 1
-      ? `¿Cuántos céntimos recibe de cambio?`
-      : `¿Cuántos céntimos gasta en total?`;
-    sceneData = {
-      scene,
-      story: text,
-      question: questionText,
-      narration: `${text} ${questionText}`,
-      answer,
-      options: rngShuffle(rng, [...options, answer]),
-    };
-  }
+  // Build a ShopScene for visual problems (all tiers)
+  const itemName = `producto de ${tienda}`;
+  const itemIcon = ["book", "pencil", "candy", "ball", "water"][tiendaIdx % 5];
+  const scene: ShopScene = {
+    type: "shop",
+    items: [{ name: itemName, price: precioE + precioC / 100, icon: itemIcon }],
+    payment: [],
+  };
+  const precioStr = `${precioE},${precioC.toString().padStart(2, "0")} €`;
+  const questionText = ctx.tier === 1
+    ? `¿Cuántos céntimos recibe de cambio?`
+    : `¿Cuántos céntimos gasta en total?`;
+  const sceneData: {
+    scene: ShopScene;
+    story: string;
+    question: string;
+    narration: string;
+    answer: number;
+    options: number[];
+  } = {
+    scene,
+    story: text,
+    question: questionText,
+    narration: `${text} ${questionText}`,
+    answer,
+    options: rngShuffle(rng, [...options, answer]),
+  };
 
   return {
     text,

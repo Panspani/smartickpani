@@ -3,3 +3,4 @@ dist
 
 # Generated images
 img/
+.vercel

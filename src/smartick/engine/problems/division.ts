@@ -213,9 +213,7 @@ function generadorDivProblemas(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
-  const sceneData = ctx.tier <= 2
-    ? generateDivisionScene(answer * grupos, grupos, answer, ctx.seed)
-    : undefined;
+  const sceneData = generateDivisionScene(answer * grupos, grupos, answer, ctx.seed);
 
   return {
     text,

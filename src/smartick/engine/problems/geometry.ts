@@ -115,10 +115,10 @@ function generadorFigClasificacion(ctx: GeneratorContext): GeneratorResult {
 
   const options = generateDistractors(answer, 3, rng, errors);
 
-  // GeometryShapeScene for supported shapes (tier 1–2 only, shape mapping exists)
+  // GeometryShapeScene for supported shapes (BASIC + MEDIUM)
   const sceneMapping = SHAPE_SCENE_MAP[shape.name];
   const sceneData: VisualProblemData | undefined =
-    sceneMapping && ctx.tier <= 2
+    sceneMapping
       ? {
           scene: {
             type: "geometry-shape",

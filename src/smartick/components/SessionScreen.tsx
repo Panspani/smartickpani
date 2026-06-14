@@ -48,7 +48,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({ onSessionComplete }) => {
 
   // ── Interleaved mini-game state ───────────────
 
-  const INTERLEAVE_EVERY = 5;
+  const INTERLEAVE_EVERY = 0; // 0 = disabled — every problem is visual now
   const gamesShownRef = useRef(0);
   const [showInterleavedGame, setShowInterleavedGame] = useState(false);
   const [interleavedGameType, setInterleavedGameType] =
@@ -98,7 +98,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({ onSessionComplete }) => {
   // After feedback fades, check if 5 correct answers reached
 
   useEffect(() => {
-    if (visibleFeedback || showInterleavedGame) return;
+    if (visibleFeedback || showInterleavedGame || INTERLEAVE_EVERY === 0) return;
 
     const expectedGames = Math.floor(session.totalCorrect / INTERLEAVE_EVERY);
     if (expectedGames > gamesShownRef.current && session.totalCorrect > 0) {

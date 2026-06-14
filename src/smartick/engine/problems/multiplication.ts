@@ -296,11 +296,8 @@ function generadorMultProblemas(ctx: GeneratorContext): GeneratorResult {
     data: { groups: grupos, perGroup: porGrupo, icon },
   };
 
-  // Rich animated scene for Smartick-style story problems (tier 1–2 only)
-  const sceneData =
-    ctx.tier <= 2
-      ? generateMultiplicationScene(grupos, porGrupo, answer, ctx.seed)
-      : undefined;
+  // Rich animated scene for story problems (all tiers)
+  const sceneData = generateMultiplicationScene(grupos, porGrupo, answer, ctx.seed);
 
   return {
     text,
